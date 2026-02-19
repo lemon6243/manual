@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>예스코 도시가스 전입·전출 통합 실무 매뉴얼</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+:root{
+  --primary:#2563EB;--primary-light:#EFF6FF;--primary-dark:#1E40AF;
+  --danger:#DC2626;--danger-light:#FEF2F2;--danger-bg:#FEF2F2;
+  --success:#16A34A;--success-light:#F0FDF4;--success-bg:#F0FDF4;
+  --warning:#F59E0B;--warning-light:#FFFBEB;
+  --purple:#7C3AED;--purple-light:#F5F3FF;--purple-dark:#5B21B6;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;
+  --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;
+  --gray-800:#1F2937;--gray-900:#111827;
+  --sidebar-width:300px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--gray-50);color:var(--gray-800);line-height:1.7;font-size:15px;}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:fixed;left:0;top:0;width:var(--sidebar-width);height:100vh;background:var(--gray-900);color:#fff;overflow-y:auto;z-index:100;padding-bottom:40px;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.1);}
+.sidebar-logo h1{font-size:18px;font-weight:800;letter-spacing:-0.5px;}
+.sidebar-logo p{font-size:12px;color:var(--gray-400);margin-top:4px;}
+.sidebar-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.1);}
+.sidebar-tab{flex:1;text-align:center;padding:14px 0;font-size:13px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;color:var(--gray-400);}
+.sidebar-tab:hover{color:#fff;}
+.sidebar-tab.active-in{color:#60A5FA;border-bottom-color:#60A5FA;background:rgba(37,99,235,0.1);}
+.sidebar-tab.active-out{color:#A78BFA;border-bottom-color:#A78BFA;background:rgba(124,58,237,0.1);}
+.nav-group{display:none;}
+.nav-group.visible{display:block;}
+.nav-section{padding:16px 0 8px;}
+.nav-section-title{font-size:11px;text-transform:uppercase;color:var(--gray-500);padding:0 20px;margin-bottom:8px;font-weight:600;letter-spacing:1px;}
+.nav-item{display:flex;align-items:center;padding:10px 20px;color:var(--gray-300);text-decoration:none;font-size:14px;transition:all .2s;cursor:pointer;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#fff;}
+.nav-item.active{background:rgba(37,99,235,0.2);color:#60A5FA;border-left-color:#60A5FA;font-weight:600;}
+.nav-item.active-out{background:rgba(124,58,237,0.2);color:#A78BFA;border-left-color:#A78BFA;font-weight:600;}
+.nav-item .nav-icon{width:20px;margin-right:10px;text-align:center;font-size:14px;}
+.nav-item .nav-step{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--gray-700);font-size:11px;font-weight:700;margin-right:10px;flex-shrink:0;}
+
+/* ===== MAIN ===== */
+.main-content{margin-left:var(--sidebar-width);min-height:100vh;}
+.top-bar{position:sticky;top:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--gray-200);padding:12px 40px;display:flex;align-items:center;justify-content:space-between;z-index:50;}
+.breadcrumb{font-size:13px;color:var(--gray-500);}
+.breadcrumb strong{color:var(--gray-800);}
+.top-actions{display:flex;gap:8px;}
+.btn-sm{padding:6px 14px;border-radius:6px;font-size:13px;border:1px solid var(--gray-300);background:#fff;cursor:pointer;font-family:inherit;transition:all .2s;}
+.btn-sm:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ===== PAGE SECTIONS ===== */
+.page-section{display:none;}
+
+/* ===== PAGE HEADER ===== */
+.page-header{padding:48px 40px 40px;color:#fff;}
+.page-header.movein{background:linear-gradient(135deg,#1E40AF 0%,#2563EB 50%,#3B82F6 100%);}
+.page-header.moveout{background:linear-gradient(135deg,#5B21B6 0%,#7C3AED 50%,#8B5CF6 100%);}
+.page-header .step-badge{display:inline-flex;align-items:center;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;margin-bottom:12px;}
+.page-header h2{font-size:28px;font-weight:800;margin-bottom:8px;letter-spacing:-1px;}
+.page-header .subtitle{font-size:15px;opacity:.9;}
+.page-header .meta-row{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap;}
+.page-header .meta-item{font-size:14px;opacity:.9;}
+
+/* ===== CONTENT ===== */
+.content-body{padding:32px 40px 80px;max-width:1100px;}
+
+/* ===== GOAL BOX ===== */
+.goal-box{border-radius:12px;padding:20px 24px;margin-bottom:28px;}
+.goal-box.blue{background:var(--primary-light);border:1px solid #BFDBFE;}
+.goal-box.purple{background:var(--purple-light);border:1px solid #C4B5FD;}
+.goal-box .goal-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.goal-box.blue .goal-label{color:var(--primary);}
+.goal-box.purple .goal-label{color:var(--purple);}
+.goal-box .goal-text{font-size:16px;font-weight:600;color:var(--gray-800);}
+.goal-box .goal-desc{font-size:14px;color:var(--gray-600);margin-top:4px;}
+
+/* ===== FLOW DIAGRAM ===== */
+.process-flow{display:flex;align-items:center;gap:0;padding:24px 0;overflow-x:auto;margin-bottom:24px;}
+.flow-step-box{display:flex;flex-direction:column;align-items:center;min-width:110px;text-align:center;}
+.flow-step-box .flow-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:8px;position:relative;}
+.flow-step-box .flow-icon.blue{background:var(--primary-light);border:2px solid #93C5FD;}
+.flow-step-box .flow-icon.purple{background:var(--purple-light);border:2px solid #C4B5FD;}
+.flow-step-box .flow-number{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.flow-step-box .flow-number.blue{background:var(--primary);}
+.flow-step-box .flow-number.purple{background:var(--purple);}
+.flow-step-box .flow-label{font-size:13px;font-weight:600;color:var(--gray-700);}
+.flow-step-box .flow-sub{font-size:11px;color:var(--gray-400);margin-top:2px;}
+.flow-arrow{font-size:20px;color:var(--gray-300);margin:0 4px;padding-bottom:28px;}
+
+/* ===== ACTION CARD ===== */
+.action-card{background:#fff;border:1px solid var(--gray-200);border-radius:12px;margin-bottom:16px;overflow:hidden;transition:all .2s;}
+.action-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+.action-header{display:flex;align-items:flex-start;padding:20px 24px;gap:16px;}
+.action-number{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.action-number.purple{background:var(--purple);}
+.action-content{flex:1;}
+.action-title{font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:4px;}
+.action-desc{font-size:14px;color:var(--gray-500);}
+.action-detail{padding:0 24px 20px 72px;}
+
+/* ===== SUB STEP ===== */
+.sub-step{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--gray-100);}
+.sub-step:first-child{border-top:none;}
+.sub-step-marker{width:24px;height:24px;border-radius:50%;border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:var(--primary);margin-top:2px;}
+.sub-step-content{flex:1;}
+.sub-step-title{font-size:14px;font-weight:600;color:var(--gray-800);margin-bottom:2px;}
+.sub-step-desc{font-size:13px;color:var(--gray-600);line-height:1.6;}
+
+/* ===== SCRIPT BOX ===== */
+.script-box{background:#F0F9FF;border-left:4px solid #0EA5E9;border-radius:0 8px 8px 0;padding:16px 20px;margin:12px 0;}
+.script-box.outbound{background:#FFF7ED;border-left-color:#F97316;}
+.script-box.purple{background:#F5F3FF;border-left-color:#8B5CF6;}
+.script-box .script-label{font-size:11px;font-weight:700;color:#0369A1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.script-box.outbound .script-label{color:#C2410C;}
+.script-box.purple .script-label{color:#6D28D9;}
+.script-box .script-text{font-size:14px;color:var(--gray-700);line-height:1.8;}
+.script-box .script-text em{color:var(--primary);font-style:normal;font-weight:600;}
+.script-box h4{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--gray-700);}
+.script-box p{font-size:14px;color:var(--gray-700);line-height:1.8;}
+
+/* ===== INFO BOX ===== */
+.info-box{border-radius:10px;padding:16px 20px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+.info-box.warning{background:#FFFBEB;border:1px solid #FDE68A;}
+.info-box.danger{background:#FEF2F2;border:1px solid #FECACA;}
+.info-box.tip{background:#F0FDF4;border:1px solid #BBF7D0;}
+.info-box.info{background:#EFF6FF;border:1px solid #BFDBFE;}
+.info-box.purple{background:#F5F3FF;border:1px solid #DDD6FE;}
+.info-box-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+.info-box-content{flex:1;}
+.info-box-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.info-box.warning .info-box-title{color:#92400E;}
+.info-box.danger .info-box-title{color:#991B1B;}
+.info-box.tip .info-box-title{color:#166534;}
+.info-box.info .info-box-title{color:#1E40AF;}
+.info-box.purple .info-box-title{color:#5B21B6;}
+.info-box-text{font-size:13px;color:var(--gray-600);line-height:1.7;}
+
+/* ===== TABLES ===== */
+.system-table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0;}
+.system-table th{background:var(--gray-100);padding:10px 16px;text-align:left;font-weight:600;font-size:13px;color:var(--gray-600);border-bottom:2px solid var(--gray-200);}
+.system-table td{padding:10px 16px;border-bottom:1px solid var(--gray-100);vertical-align:top;}
+.system-table .field-name{font-weight:600;color:var(--gray-800);white-space:nowrap;}
+.system-table .required{color:var(--danger);font-size:12px;font-weight:700;}
+.system-table .field-desc{color:var(--gray-500);font-size:13px;}
+
+/* ===== BRANCH ===== */
+.branch-container{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.branch-card{border-radius:10px;padding:20px;border:1px solid;}
+.branch-card.normal{background:#F0FDF4;border-color:#BBF7D0;}
+.branch-card.exception{background:#FEF2F2;border-color:#FECACA;}
+.branch-label{font-size:12px;font-weight:700;padding:2px 10px;border-radius:10px;display:inline-block;margin-bottom:8px;}
+.branch-card.normal .branch-label{background:#DCFCE7;color:#166534;}
+.branch-card.exception .branch-label{background:#FEE2E2;color:#991B1B;}
+.branch-title{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--gray-800);}
+.branch-text{font-size:13px;color:var(--gray-600);line-height:1.7;}
+.branch-action{margin-top:10px;font-size:13px;font-weight:600;color:var(--primary);}
+
+/* ===== CHECKLIST ===== */
+.checklist{list-style:none;padding:0;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100);font-size:14px;cursor:pointer;}
+.checklist li:last-child{border-bottom:none;}
+.checklist li input[type="checkbox"]{width:18px;height:18px;margin-top:2px;accent-color:var(--primary);flex-shrink:0;cursor:pointer;}
+.checklist-group label{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:14px;cursor:pointer;}
+.checklist-group label input[type="checkbox"]{width:18px;height:18px;margin-top:2px;accent-color:var(--primary);flex-shrink:0;}
+
+/* ===== QUICK REF ===== */
+.quick-ref{background:#fff;border:1px solid var(--gray-200);border-radius:12px;padding:20px 24px;margin-bottom:24px;}
+.quick-ref-title{font-size:14px;font-weight:700;color:var(--gray-700);margin-bottom:12px;}
+.quick-ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.quick-ref-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-600);}
+.quick-ref-item strong{color:var(--gray-800);}
+
+/* ===== COMPLETION ===== */
+.completion-box{background:linear-gradient(135deg,#F0FDF4 0%,#DCFCE7 100%);border:2px solid #86EFAC;border-radius:12px;padding:24px;margin-top:24px;text-align:center;}
+.completion-box h4{font-size:16px;font-weight:700;color:#166534;margin-bottom:8px;}
+.completion-box p{font-size:14px;color:#166534;}
+.completion-checklist{display:flex;gap:24px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+.completion-item{display:flex;align-items:center;gap:6px;font-size:14px;color:#166534;font-weight:500;}
+
+/* ===== STEP NAV ===== */
+.step-nav{display:flex;justify-content:space-between;margin-top:40px;padding-top:24px;border-top:1px solid var(--gray-200);}
+.step-nav-btn{display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s;}
+.step-nav-btn.prev{background:var(--gray-100);color:var(--gray-600);}
+.step-nav-btn.prev:hover{background:var(--gray-200);}
+.step-nav-btn.next{background:var(--primary);color:#fff;}
+.step-nav-btn.next:hover{background:var(--primary-dark);}
+.step-nav-btn.next.purple{background:var(--purple);}
+.step-nav-btn.next.purple:hover{background:var(--purple-dark);}
+
+/* ===== SECTION TITLE ===== */
+.section-title{font-size:18px;font-weight:700;color:var(--gray-800);margin-bottom:16px;display:flex;align-items:center;gap:8px;letter-spacing:-.5px;}
+.section-title .icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.section-title .icon.blue{background:var(--primary-light);color:var(--primary);}
+
+/* ===== SCRIPT TABS ===== */
+.tab-group{display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:16px;}
+.tab-btn{padding:10px 20px;font-size:14px;font-weight:600;color:var(--gray-500);cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;font-family:inherit;transition:all .2s;}
+.tab-btn:hover{color:var(--gray-700);}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+.script-tab-content{padding-top:8px;}
+
+/* ===== FOOTER ===== */
+.manual-footer{margin-left:var(--sidebar-width);padding:24px 32px;background:var(--gray-800);color:#fff;font-size:13px;text-align:center;line-height:1.8;}
+.manual-footer a{color:#90caf9;}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1024px){
+  .sidebar{display:none;}
+  .main-content{margin-left:0;}
+  .content-body{padding:24px 20px 60px;}
+  .page-header{padding:32px 20px;}
+  .branch-container{grid-template-columns:1fr;}
+  .manual-footer{margin-left:0;}
+}
+@media print{
+  .sidebar,.top-bar,.step-nav,.top-actions{display:none!important;}
+  .main-content{margin-left:0;}
+  .page-section{display:block!important;}
+  .manual-footer{margin-left:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>🔥 예스코 도시가스</h1>
+    <p>전입·전출 통합 실무 매뉴얼 v2.1</p>
+  </div>
+  <div class="sidebar-tabs">
+    <div class="sidebar-tab active-in" data-process="in" onclick="switchProcess('in');showPage('in-overview');">📗 전입</div>
+    <div class="sidebar-tab" data-process="out" onclick="switchProcess('out');showPage('out-overview');">📕 전출</div>
+  </div>
+  <!-- 전입 NAV -->
+  <div class="nav-group visible" id="nav-in">
+    <div class="nav-section">
+      <div class="nav-section-title">전입 프로세스</div>
+      <a class="nav-item" data-page="in-overview" onclick="showPage('in-overview')"><span class="nav-icon">📋</span> 전입 전체 흐름</a>
+      <a class="nav-item" data-page="in-step1" onclick="showPage('in-step1')"><span class="nav-step">1</span> 접수</a>
+      <a class="nav-item" data-page="in-step2" onclick="showPage('in-step2')"><span class="nav-step">2</span> 상태확인</a>
+      <a class="nav-item" data-page="in-step3" onclick="showPage('in-step3')"><span class="nav-step">3</span> 점검예약</a>
+      <a class="nav-item" data-page="in-step4" onclick="showPage('in-step4')"><span class="nav-step">4</span> 현장점검</a>
+      <a class="nav-item" data-page="in-step5" onclick="showPage('in-step5')"><span class="nav-step">5</span> 등록·개통</a>
+      <a class="nav-item" data-page="in-step6" onclick="showPage('in-step6')"><span class="nav-step">6</span> 안내</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">부록</div>
+      <a class="nav-item" data-page="in-exception" onclick="showPage('in-exception')"><span class="nav-icon">🚨</span> 예외 대응 가이드</a>
+      <a class="nav-item" data-page="in-cost" onclick="showPage('in-cost')"><span class="nav-icon">💰</span> 비용 안내표</a>
+      <a class="nav-item" data-page="in-scripts" onclick="showPage('in-scripts')"><span class="nav-icon">📞</span> 스크립트 모음</a>
+    </div>
+  </div>
+  <!-- 전출 NAV -->
+  <div class="nav-group" id="nav-out">
+    <div class="nav-section">
+      <div class="nav-section-title">전출 프로세스</div>
+      <a class="nav-item" data-page="out-overview" onclick="showPage('out-overview')"><span class="nav-icon">📋</span> 전출 전체 흐름</a>
+      <a class="nav-item" data-page="out-step1" onclick="showPage('out-step1')"><span class="nav-step">1</span> 전출접수</a>
+      <a class="nav-item" data-page="out-step2" onclick="showPage('out-step2')"><span class="nav-step">2</span> 상태확인</a>
+      <a class="nav-item" data-page="out-step3" onclick="showPage('out-step3')"><span class="nav-step">3</span> 안전점검</a>
+      <a class="nav-item" data-page="out-step4" onclick="showPage('out-step4')"><span class="nav-step">4</span> 최종정산</a>
+      <a class="nav-item" data-page="out-step5" onclick="showPage('out-step5')"><span class="nav-step">5</span> 전출처리</a>
+      <a class="nav-item" data-page="out-step6" onclick="showPage('out-step6')"><span class="nav-step">6</span> 확인안내</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">부록</div>
+      <a class="nav-item" data-page="out-exception" onclick="showPage('out-exception')"><span class="nav-icon">🚨</span> 예외 대응 가이드</a>
+      <a class="nav-item" data-page="out-guide" onclick="showPage('out-guide')"><span class="nav-icon">🗂️</span> 상황별 실무 지침</a>
+      <a class="nav-item" data-page="out-scripts" onclick="showPage('out-scripts')"><span class="nav-icon">📞</span> 스크립트 모음</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<div class="main-content">
+  <div class="top-bar">
+    <div class="breadcrumb" id="breadcrumb">매뉴얼 &gt; 전입 &gt; <strong>전체 흐름</strong></div>
+    <div class="top-actions">
+      <button class="btn-sm" onclick="window.print()">🖨️ 인쇄</button>
+      <button class="btn-sm">📞 1544-3131</button>
+      <button class="btn-sm">🌐 www.lsyesco.com</button>
+    </div>
+  </div>
+
+  <!-- ================ 전입 전체 흐름 ================ -->
+  <div class="page-section" id="in-overview">
+    <div class="page-header movein">
+      <div class="step-badge">📗 전입 프로세스 — 표준 6단계 (채권 관점 반영)</div>
+      <h2>전입 프로세스 실무 가이드</h2>
+      <p class="subtitle">예스코 도시가스 | 사용계약 선체결 필수 · 채권 상태 체크 · 고객센터 상담원용 빠른 참조 가이드</p>
+      <div class="meta-row">
+        <span class="meta-item">⏱ 평균 처리: 7~10분</span>
+        <span class="meta-item">📅 업데이트: 2026.02</span>
+        <span class="meta-item">📞 1544-3131</span>
+      </div>
+    </div>
+    <div class="content-body">
+      <div class="info-box purple">
+        <div class="info-box-icon">⚖️</div>
+        <div class="info-box-content">
+          <div class="info-box-title">법령 준수 원칙: 도시가스 사용계약 필수 체결 | 미정산/연체 체크 필수</div>
+          <div class="info-box-text">도시가스 공급 전 사용자와 사용계약 필수 체결 (관련 법령 준수) | 미정산/연체 존재 시 서류 접수 우회 | 셀프 플랫폼을 통한 사전 계약 체결 → 전입 실행 시 계약 복원</div>
+        </div>
+      </div>
+      <div class="process-flow">
+        <div class="flow-step-box"><div class="flow-icon blue">📋<div class="flow-number blue">1</div></div><div class="flow-label">접수</div><div class="flow-sub">전입 신청 접수</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon blue">💰<div class="flow-number blue">2</div></div><div class="flow-label">상태확인</div><div class="flow-sub">미정산/연체</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon blue">📱<div class="flow-number blue">3</div></div><div class="flow-label">점검예약</div><div class="flow-sub">셀프계약/발송</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon blue">🔍<div class="flow-number blue">4</div></div><div class="flow-label">현장점검</div><div class="flow-sub">안전 12항목</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon blue">🔌<div class="flow-number blue">5</div></div><div class="flow-label">등록·개통</div><div class="flow-sub">대수입금+계약</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon blue">📢<div class="flow-number blue">6</div></div><div class="flow-label">안내</div><div class="flow-sub">고객 안내</div></div>
+      </div>
+
+      <!-- 상담 스크립트 예시 (채권 확인 포함) -->
+      <div class="info-box info">
+        <div class="info-box-icon">💬</div>
+        <div class="info-box-content">
+          <div class="info-box-title">상담 스크립트 예시 (채권 확인 포함)</div>
+          <div class="info-box-text">
+            <strong>[일반]</strong> "고객님, 전입 신청과 동시에 사용계약을 간편하게 체결하실 수 있습니다. 문자로 발송된 링크를 통해 본인인증 후 약 2분이면 완료됩니다."<br>
+            <strong>[미정산 발견 시]</strong> "고객님, 시스템 확인 결과 기존 미정산 내역이 있습니다. 정상 후 전입 처리가 가능합니다."
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box tip">
+        <div class="info-box-icon">💡</div>
+        <div class="info-box-content">
+          <div class="info-box-title">알림톡 셀프계약 안내</div>
+          <div class="info-box-text">전입 접수 시 고객 휴대폰으로 <strong>알림톡</strong>이 발송되며, 링크를 통해 바로 사용계약 체결이 가능합니다. 홈페이지(www.lsyesco.com)와 가스앱에서도 가능합니다. 셀프계약이 어려운 고객은 매니저 방문 시 휴대용 전산기기로 현장 전자계약을 진행합니다.</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <div></div>
+        <button class="step-nav-btn next" onclick="showPage('in-step1')">STEP 1. 접수 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 STEP 1 ================ -->
+  <div class="page-section" id="in-step1">
+    <div class="page-header movein">
+      <div class="step-badge">STEP 1 of 6</div>
+      <h2>접수 (전입 신청 접수)</h2>
+      <p class="subtitle">본인확인 → 전입 정보 수집 → 방문 예약 → 알림톡 셀프계약 링크 발송</p>
+      <div class="meta-row">
+        <span class="meta-item">⏱ 소요: 3~5분</span>
+        <span class="meta-item">📞 채널: 전화 / 홈페이지 / 가스앱(현재 미개발)</span>
+        <span class="meta-item">💻 시스템: ERP · 채권관리</span>
+      </div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box blue">
+        <div class="goal-label">🎯 STEP 1 목표</div>
+        <div class="goal-text">고객 본인확인 후 전입 접수를 완료하고, 알림톡으로 셀프계약 링크를 발송한다</div>
+        <div class="goal-desc">필수: 본인인증 · 전입 주소 · 이사 예정일 · 채권 상태 확인 · 알림톡 셀프계약 발송</div>
+      </div>
+      <div class="quick-ref">
+        <div class="quick-ref-title">⚡ 빠른 참조</div>
+        <div class="quick-ref-grid">
+          <div class="quick-ref-item">📞 <strong>콜센터:</strong> 1544-3131</div>
+          <div class="quick-ref-item">📅 <strong>사전 예약:</strong> 방문 2~3일 전</div>
+          <div class="quick-ref-item">🪪 <strong>본인 확인:</strong> CI / 휴대폰 인증</div>
+          <div class="quick-ref-item">💳 <strong>비용:</strong> 연결 서비스 비용 별도</div>
+        </div>
+      </div>
+
+      <div class="section-title"><span class="icon blue">📞</span> 상담원 액션 순서</div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header">
+          <div class="action-number">1</div>
+          <div class="action-content">
+            <div class="action-title">고객 본인확인 수행</div>
+            <div class="action-desc">인사 → 본인인증(CI/휴대폰) → 고객 정보 조회</div>
+          </div>
+        </div>
+        <div class="action-detail">
+          <div class="sub-step"><div class="sub-step-marker">A</div><div class="sub-step-content">
+            <div class="sub-step-title">인사 및 접수 유형 확인</div>
+            <div class="script-box"><div class="script-label">💬 오프닝 스크립트</div><div class="script-text">"감사합니다. <em>예스코</em> 도시가스 고객센터 ○○○입니다. 무엇을 도와드릴까요?"<br>→ "네, 도시가스 <em>전입 신청</em> 도와드리겠습니다."</div></div>
+          </div></div>
+          <div class="sub-step"><div class="sub-step-marker">B</div><div class="sub-step-content">
+            <div class="sub-step-title">본인 인증 절차</div>
+            <div class="script-box"><div class="script-label">💬 인증 안내</div><div class="script-text">"본인확인을 위해 <em>휴대폰 인증</em>을 진행하겠습니다. 문자 한 통 발송해 드릴 테니 <em>인증번호 6자리</em>를 말씀해 주세요."</div></div>
+            <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">대리 신청 시</div><div class="info-box-text">본인이 아닌 경우(가족, 부동산), 위임장 필수 확인. 대리인 정보 + 실사용자 정보 모두 수집. 사용계약은 반드시 전입자 본인 명의로 체결해야 합니다.</div></div></div>
+          </div></div>
+          <div class="sub-step"><div class="sub-step-marker">C</div><div class="sub-step-content">
+            <div class="sub-step-title">전입 정보 수집 — ERP 입력</div>
+            <table class="system-table">
+              <thead><tr><th>ERP 필드명</th><th>입력 내용</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name">고객명 <span class="required">*필수</span></td><td>전입자 실명</td><td class="field-desc">CI인증 시 자동</td></tr>
+                <tr><td class="field-name">생년월일 <span class="required">*필수</span></td><td>YYYY-MM-DD</td><td class="field-desc">본인확인용</td></tr>
+                <tr><td class="field-name">연락처 <span class="required">*필수</span></td><td>010-XXXX-XXXX</td><td class="field-desc">알림톡 발송용</td></tr>
+                <tr><td class="field-name">전입 주소 <span class="required">*필수</span></td><td>도로명 + 동·호수</td><td class="field-desc">지번 병기 권장</td></tr>
+                <tr><td class="field-name">이사 예정일 <span class="required">*필수</span></td><td>YYYY-MM-DD</td><td class="field-desc">당일 시 긴급 처리</td></tr>
+                <tr><td class="field-name">방문 시간대</td><td>오전 / 오후</td><td class="field-desc">배정 참고</td></tr>
+                <tr><td class="field-name">접수 채널 <span class="required">*필수</span></td><td>전화 / 홈페이지 / 가스앱(현재 미개발)</td><td class="field-desc">통계용</td></tr>
+                <tr><td class="field-name">가스 종류 확인</td><td>도시가스 / LPG</td><td class="field-desc">LPG 시 해당 판매점 안내</td></tr>
+                <tr><td class="field-name">비고</td><td>특이사항 메모</td><td class="field-desc">빌트인, 인덕션 등</td></tr>
+              </tbody>
+            </table>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 2 -->
+      <div class="action-card">
+        <div class="action-header">
+          <div class="action-number">2</div>
+          <div class="action-content">
+            <div class="action-title">미정산/연체 확인 (채권 상태 체크)</div>
+            <div class="action-desc">채권관리시스템에서 해당 주소의 미정산/연체 이력 조회</div>
+          </div>
+        </div>
+        <div class="action-detail">
+          <div class="branch-container">
+            <div class="branch-card normal">
+              <div class="branch-label">✅ 정상</div>
+              <div class="branch-title">미정산/연체 없음</div>
+              <div class="branch-text">이전 거주자 전출 완료 · 미납 0원</div>
+              <div class="branch-action">→ ACTION 3 으로 이동</div>
+            </div>
+            <div class="branch-card exception">
+              <div class="branch-label">🚨 미정산 발견</div>
+              <div class="branch-title">미정산/연체 존재 — 서류 접수 우회</div>
+              <div class="branch-text">이전 거주자 미정산 → 시류 접수 후 채권파트 승인 필요 → 전입자에게 전가 불가</div>
+              <div class="branch-action">→ 미정산 처리 프로세스 (채권파트 승인)</div>
+            </div>
+          </div>
+          <div class="script-box outbound"><div class="script-label">💬 미정산 발견 시</div><div class="script-text">"고객님, 시스템 확인 결과 기존 <em>미정산 내역</em>이 있습니다. 정상 후 전입 처리가 가능합니다. 이 요금은 고객님께 청구되지 않으며, 이전 거주자 또는 소유주 분께 별도 안내를 진행합니다."</div></div>
+          <div class="info-box tip"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">대수입금 확인</div><div class="info-box-text">해당 주소에 타 고객 명의의 입금(대수입금)이 있는지 반드시 확인. 존재 시 담당자에게 즉시 통보합니다.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 3 -->
+      <div class="action-card">
+        <div class="action-header">
+          <div class="action-number">3</div>
+          <div class="action-content">
+            <div class="action-title">사용계약 안내 · 알림톡 셀프계약 링크 발송</div>
+            <div class="action-desc">알림톡 셀프계약 링크 발송 → 계약 방법 4가지 안내</div>
+          </div>
+        </div>
+        <div class="action-detail">
+          <div class="sub-step"><div class="sub-step-marker">A</div><div class="sub-step-content">
+            <div class="sub-step-title">알림톡 셀프계약 링크 발송</div>
+            <div class="script-box"><div class="script-label">💬 안내 스크립트</div><div class="script-text">"고객님, 전입 신청과 동시에 사용계약을 간편하게 체결하실 수 있습니다. 문자로 발송된 링크를 통해 <em>본인인증</em> 후 약 <em>2분</em>이면 완료됩니다."<br><br>"혹시 알림톡 수신이 어려우시면 홈페이지나 가스앱에서도 가능하고, 매니저 방문 시 <em>현장에서 전자계약</em>도 가능합니다."</div></div>
+            <div class="info-box info"><div class="info-box-icon">📱</div><div class="info-box-content"><div class="info-box-title">알림톡 셀프계약 발송 예시</div><div class="info-box-text"><strong>[예스코 도시가스]</strong><br>○○○ 고객님, 전입 접수가 완료되었습니다.<br>아래 링크를 눌러 <strong>사용계약을 체결</strong>해 주세요.<br>👉 <em>셀프계약 바로가기</em> [링크]<br>▪ 본인인증 → 약관 동의 → 전자서명 (약 2분)<br>▪ 문의: 1544-3131</div></div></div>
+          </div></div>
+          <div class="sub-step"><div class="sub-step-marker">B</div><div class="sub-step-content">
+            <div class="sub-step-title">계약 체결 방법 비교 (4가지)</div>
+            <table class="system-table">
+              <thead><tr><th>방법</th><th>절차</th><th>소요시간</th><th>비고</th></tr></thead>
+              <tbody>
+                <tr><td class="field-name" style="color:var(--primary);">① 알림톡 셀프계약 ⭐</td><td>알림톡 → 링크 → 본인인증 → 전자서명</td><td>2분 이내</td><td class="field-desc">가장 빠름 · 권장</td></tr>
+                <tr><td class="field-name">② 홈페이지 셀프계약</td><td>www.lsyesco.com → 전입 접수 → 계약</td><td>5분 이내</td><td class="field-desc">24시간 가능</td></tr>
+                <tr><td class="field-name">③ 가스앱(현재 미개발) 셀프계약</td><td>앱 → 전입 신청 → 계약 체결</td><td>5분 이내</td><td class="field-desc">모바일 전자서명</td></tr>
+                <tr><td class="field-name">④ 현장 전자계약 (매니저)</td><td>매니저 휴대용 전산기기에서 계약·전자서명</td><td>방문 당일</td><td class="field-desc">신분증 준비 필요</td></tr>
+              </tbody>
+            </table>
+          </div></div>
+          <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">알림톡 미수신 / 스마트폰 미사용 고객 — 플랫폼 미사용</div><div class="info-box-text">CRM에 [현장 전자계약] 체크 → 매니저가 방문 시 <strong>휴대용 전산기기</strong>에서 직접 계약 진행 (콜센터 대행 체결). 고객에게는 "신분증만 준비해 주세요"라고 안내합니다.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 4 -->
+      <div class="action-card">
+        <div class="action-header">
+          <div class="action-number">4</div>
+          <div class="action-content">
+            <div class="action-title">현장 점검 예약 등록</div>
+            <div class="action-desc">방문 일시 등록 → 기사 배정 → 통화 마무리</div>
+          </div>
+        </div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>예약 필드</th><th>입력 내용</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">방문 희망일 <span class="required">*필수</span></td><td>이사 예정일</td><td class="field-desc">당일 시 별도 승인</td></tr>
+              <tr><td class="field-name">희망 시간대 <span class="required">*필수</span></td><td>오전(09~12) / 오후(13~17)</td><td class="field-desc">배정 후 안내</td></tr>
+              <tr><td class="field-name">현장 입장 방법</td><td>직접 대기 / 비밀번호 / 관리실</td><td class="field-desc">부재 시 대응</td></tr>
+              <tr><td class="field-name">연소기 연결 요청</td><td>가스레인지 / 보일러 / 기타</td><td class="field-desc">비용 안내 필수</td></tr>
+            </tbody>
+          </table>
+          <div class="script-box"><div class="script-label">💬 마무리 안내</div><div class="script-text">"정리해 드리겠습니다. <em>○월 ○일 오전/오후</em>에 매니저가 방문 예정이며, 방문 전 <em>사전 연락</em>을 드립니다. <em>알림톡</em>으로 보내드린 셀프계약 링크는 방문 전까지 완료 부탁드립니다. 추가 문의는 <em>1544-3131</em>로 연락 주세요."</div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 5 -->
+      <div class="action-card">
+        <div class="action-header">
+          <div class="action-number">5</div>
+          <div class="action-content">
+            <div class="action-title">접수 완료 — 필수 필드 최종 확인</div>
+            <div class="action-desc">모든 필수 필드 확인 → [접수 완료]</div>
+          </div>
+        </div>
+        <div class="action-detail">
+          <ul class="checklist">
+            <li><input type="checkbox"><span>고객명, 연락처 정확히 입력되었는가?</span></li>
+            <li><input type="checkbox"><span>전입 주소 오류 없는가?</span></li>
+            <li><input type="checkbox"><span>채권 상태 조회 완료했는가?</span></li>
+            <li><input type="checkbox"><span>알림톡 셀프계약 링크 발송했는가?</span></li>
+            <li><input type="checkbox"><span>현장 점검 예약 등록 완료했는가?</span></li>
+            <li><input type="checkbox"><span>가스 종류 확인했는가?</span></li>
+            <li><input type="checkbox"><span>안전점검 12항목 완료 체크 (현장)</span></li>
+            <li><input type="checkbox"><span>용도별 담보 — 영업용 담보 안내 완료했는가?</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="completion-box">
+        <h4>✅ STEP 1 완료 확인</h4>
+        <div class="completion-checklist">
+          <div class="completion-item">✓ 본인인증</div>
+          <div class="completion-item">✓ 전입 정보</div>
+          <div class="completion-item">✓ 채권 확인</div>
+          <div class="completion-item">✓ 알림톡 발송</div>
+          <div class="completion-item">✓ 예약 등록</div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-overview')">← 전체 흐름</button>
+        <button class="step-nav-btn next" onclick="showPage('in-step2')">STEP 2. 상태확인 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 STEP 2 ================ -->
+  <div class="page-section" id="in-step2">
+    <div class="page-header movein">
+      <div class="step-badge">STEP 2 of 6</div>
+      <h2>상태확인 (미정산·연체)</h2>
+      <p class="subtitle">전입 주소의 기존 계약 상태 · 미납 잔액 · 계량기 상태를 확인합니다</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 2~3분</span><span class="meta-item">💻 ERP · 채권관리</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box blue">
+        <div class="goal-label">🎯 STEP 2 목표</div>
+        <div class="goal-text">전입 주소의 기존 계약 상태를 파악하고, 미납/연체 없음을 확인</div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">1</div><div class="action-content"><div class="action-title">전입 주소 계약 이력 조회</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>확인 항목</th><th>정상 상태</th><th>이상 시 조치</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">전출 처리 여부</td><td>전출 완료</td><td class="field-desc">미전출 시 이전 거주자 연락 → 전출 선처리</td></tr>
+              <tr><td class="field-name">미납 잔액</td><td>0원</td><td class="field-desc">미납 존재 시 이전 거주자/소유자 별도 청구</td></tr>
+              <tr><td class="field-name">계량기 봉인</td><td>봉인 상태</td><td class="field-desc">봉인 해제 시 현장 점검 우선</td></tr>
+              <tr><td class="field-name">공급 중지 이력</td><td>없음</td><td class="field-desc">3개월 이상 체납 시 복원 절차</td></tr>
+              <tr><td class="field-name">계약 ID 매핑</td><td>사전 계약 정보 연동</td><td class="field-desc">기존 계약 이력 확인</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">2</div><div class="action-content"><div class="action-title">확인 결과 고객 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box"><div class="script-label">💬 정상 시</div><div class="script-text">"고객님, 해당 주소 확인 결과 이전 거주자의 전출 처리가 <em>정상 완료</em>되었고, 미납 잔액도 없습니다."</div></div>
+          <div class="script-box outbound"><div class="script-label">💬 미정산 발견 시</div><div class="script-text">"고객님, 시스템 확인 결과 기존 <em>미정산 내역</em>이 있습니다. 정상 후 전입 처리가 가능합니다. 이 요금은 고객님께 청구되지 않습니다."</div></div>
+          <div class="info-box danger"><div class="info-box-icon">⛔</div><div class="info-box-content"><div class="info-box-title">절대 금지: 이전 거주자 미납을 전입자에게 전가</div><div class="info-box-text">이전 거주자 미납 요금을 전입자에게 전가하거나 정산을 요구하는 것은 절대 불가합니다.</div></div></div>
+        </div>
+      </div>
+      <div class="completion-box"><h4>✅ STEP 2 완료</h4><div class="completion-checklist"><div class="completion-item">✓ 전출 처리 확인</div><div class="completion-item">✓ 미납 확인</div><div class="completion-item">✓ 계량기 봉인 확인</div></div></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-step1')">← STEP 1</button>
+        <button class="step-nav-btn next" onclick="showPage('in-step3')">STEP 3. 점검예약 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 STEP 3 ================ -->
+  <div class="page-section" id="in-step3">
+    <div class="page-header movein">
+      <div class="step-badge">STEP 3 of 6</div>
+      <h2>점검예약 (셀프계약 안내/발송)</h2>
+      <p class="subtitle">알림톡 셀프계약 완료 확인 · 미완료 시 재발송 또는 현장 전자계약 안내 · 점검 예약</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 2~4분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box blue">
+        <div class="goal-label">🎯 STEP 3 목표</div>
+        <div class="goal-text">사용계약 체결 여부를 확인하고, 미완료 시 알림톡 재발송 또는 현장 전자계약을 준비, 점검 예약 확정</div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">1</div><div class="action-content"><div class="action-title">셀프계약 완료 여부 확인</div></div></div>
+        <div class="action-detail">
+          <div class="branch-container">
+            <div class="branch-card normal"><div class="branch-label">✅ 완료</div><div class="branch-title">셀프계약 완료</div><div class="branch-text">ERP 확인 → 별도 조치 불필요</div><div class="branch-action">→ STEP 4로 이동</div></div>
+            <div class="branch-card exception"><div class="branch-label">📝 미완료</div><div class="branch-title">셀프계약 미진행</div><div class="branch-text">알림톡 재발송 또는 현장 전자계약 지정</div><div class="branch-action">→ ACTION 2로 이동</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">2</div><div class="action-content"><div class="action-title">미완료 시 재안내</div></div></div>
+        <div class="action-detail">
+          <div class="sub-step"><div class="sub-step-marker">A</div><div class="sub-step-content">
+            <div class="sub-step-title">알림톡 재발송</div>
+            <div class="script-box"><div class="script-label">💬 재안내</div><div class="script-text">"고객님, 사용계약이 아직 완료되지 않았습니다. 알림톡을 <em>다시 발송</em>해 드릴까요?"</div></div>
+          </div></div>
+          <div class="sub-step"><div class="sub-step-marker">B</div><div class="sub-step-content">
+            <div class="sub-step-title">현장 전자계약 지정</div>
+            <div class="script-box"><div class="script-label">💬 현장 전자계약 안내</div><div class="script-text">"방문 매니저가 <em>전자기기로 계약을 도와드릴</em> 예정이니, <em>신분증</em>만 준비해 주시면 됩니다."</div></div>
+          </div></div>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">3</div><div class="action-content"><div class="action-title">자동이체 · 알림톡(요금) 등록 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box"><div class="script-label">💬 안내</div><div class="script-text">"사용계약과 함께 <em>자동이체</em>도 등록하시면 납부가 편리합니다. <em>알림톡</em>을 등록하시면 매월 요금 안내를 받아보실 수 있습니다."</div></div>
+          <div class="info-box tip"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">KPI 참고</div><div class="info-box-text">알림톡 셀프계약 완료율, 자동이체 등록률이 팀 KPI에 반영됩니다.</div></div></div>
+        </div>
+      </div>
+      <div class="completion-box"><h4>✅ STEP 3 완료</h4><div class="completion-checklist"><div class="completion-item">✓ 계약 확인</div><div class="completion-item">✓ 미완료 시 재안내</div><div class="completion-item">✓ 자동이체 안내</div><div class="completion-item">✓ 점검 예약 확정</div></div></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-step2')">← STEP 2</button>
+        <button class="step-nav-btn next" onclick="showPage('in-step4')">STEP 4. 현장점검 →</button>
+      </div>
+    </div>
+  </div>
+  <!-- ================ 전입 STEP 4 ================ -->
+  <div class="page-section" id="in-step4">
+    <div class="page-header movein">
+      <div class="step-badge">STEP 4 of 6</div>
+      <h2>현장점검 · 가스 연결</h2>
+      <p class="subtitle">12가지 안전점검 → 연소기·호스·밸브 연결 → 봉인 해제 → 가스 공급 개시</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 15~20분 (현장)</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box blue">
+        <div class="goal-label">🎯 STEP 4 목표</div>
+        <div class="goal-text">12가지 안전점검 완료 → 연소기·호스·밸브 연결 → 봉인 해제 → 가스 공급 개시</div>
+      </div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">1</div><div class="action-content"><div class="action-title">사전 연락 (방문 10~15분 전)</div></div></div>
+        <div class="action-detail">
+          <div class="script-box"><div class="script-label">📞 매니저 → 고객</div><div class="script-text">"안녕하세요, 예스코 도시가스 매니저 ○○○입니다. 오늘 <em>[시간]</em>에 <em>[주소]</em> 방문 예정이며, 약 <em>15~20분</em> 소요됩니다. 현관 출입 방법과 주차 안내를 부탁드립니다."</div></div>
+          <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">겨울철 동파 주의 (11~3월)</div><div class="info-box-text">"보일러 전원을 '외출' 모드로 유지해 주시고, 수도 배관 동파 여부도 함께 확인 부탁드립니다."</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 2 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">2</div><div class="action-content"><div class="action-title">사용계약 확인</div></div></div>
+        <div class="action-detail">
+          <div class="branch-container">
+            <div class="branch-card normal"><div class="branch-label">✅ 셀프계약 완료</div><div class="branch-title">전자서명 확인만</div><div class="branch-text">알림톡/홈페이지/가스앱으로 이미 완료 → 서명 확인 후 점검 진행</div></div>
+            <div class="branch-card exception"><div class="branch-label">📋 미완료</div><div class="branch-title">현장 전자계약</div><div class="branch-text">매니저 휴대용 전산기기에서 계약 체결 → 신분증 확인 → 전자서명</div></div>
+          </div>
+          <div class="info-box info"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">참고</div><div class="info-box-text">현장 전자계약 시 종이 서면 양식지는 사용하지 않습니다. 매니저가 <strong>휴대용 전산기기</strong>에서 직접 계약서를 작성하고, 고객이 전산기기 화면에서 전자서명합니다.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 3 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">3</div><div class="action-content"><div class="action-title">안전점검 12항목</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>No.</th><th>점검 항목</th><th>합격 기준</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>계량기 외관</td><td>균열·파손·부식 없음</td></tr>
+              <tr><td>2</td><td>계량기 지침 기록</td><td>사진 촬영 + ERP 입력</td></tr>
+              <tr><td>3</td><td>배관 누출 검사</td><td>비눗물 또는 가스 감지기 — 누출 0</td></tr>
+              <tr><td>4</td><td>중간밸브 작동</td><td>개폐 원활, 잠금 시 완전 차단</td></tr>
+              <tr><td>5</td><td>퓨즈콕 상태</td><td>정상 작동, 즉시 차단</td></tr>
+              <tr><td>6</td><td>호스 상태</td><td>균열·경화·꺾임 없음, 규격 적합</td></tr>
+              <tr><td>7</td><td>호스밴드 체결</td><td>양쪽 밴드 체결 확인</td></tr>
+              <tr><td>8</td><td>연소기(레인지) 점화</td><td>정상 점화·소화 확인</td></tr>
+              <tr><td>9</td><td>보일러 점화</td><td>정상 점화·온수 출수 확인</td></tr>
+              <tr><td>10</td><td>환기 설비</td><td>배기통·환풍구 정상 연결</td></tr>
+              <tr><td>11</td><td>가스 경보기</td><td>설치 여부·작동 확인</td></tr>
+              <tr><td>12</td><td>가스 누출 최종 확인</td><td>전체 배관 최종 누출 검사 통과</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACTION 4 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">4</div><div class="action-content"><div class="action-title">연소기 연결 · 봉인 해제 · 공급 개시</div></div></div>
+        <div class="action-detail">
+          <div class="checklist-group">
+            <label><input type="checkbox"> 레인지(쿡탑) 연결 및 점화 확인</label>
+            <label><input type="checkbox"> 보일러 연결 및 온수 출수 확인</label>
+            <label><input type="checkbox"> 호스·밴드 신규 교체 또는 기존 양호 확인</label>
+            <label><input type="checkbox"> 퓨즈콕 교체 또는 기존 양호 확인</label>
+            <label><input type="checkbox"> 중간밸브 개방</label>
+            <label><input type="checkbox"> 계량기 봉인 해제 → 공급 개시</label>
+            <label><input type="checkbox"> 계량기 지침 기록 (사진 + ERP)</label>
+            <label><input type="checkbox"> 비용 수납 (퓨즈콕·호스 교체 시)</label>
+          </div>
+          <div class="info-box danger"><div class="info-box-icon">🚨</div><div class="info-box-content"><div class="info-box-title">안전 경고</div><div class="info-box-text">누출 검사 불합격 시 → <strong>가스 공급 절대 불가</strong>. 즉시 밸브 잠금 → 고객 안내 → 배관 수리 후 재점검 필요.</div></div></div>
+        </div>
+      </div>
+
+      <div class="completion-box"><h4>✅ STEP 4 완료</h4><p>안전점검 합격, 가스 공급 개시, 지침 기록 완료</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-step3')">← STEP 3</button>
+        <button class="step-nav-btn next" onclick="showPage('in-step5')">STEP 5. 등록·개통 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 STEP 5 ================ -->
+  <div class="page-section" id="in-step5">
+    <div class="page-header movein">
+      <div class="step-badge">STEP 5 of 6</div>
+      <h2>등록·개통 (전입 승인: 대수입금+계약)</h2>
+      <p class="subtitle">현장 점검 결과 ERP 반영 → 대수입금 확인 → 상태 "전입 완료" 확정</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 2~3분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box blue">
+        <div class="goal-label">🎯 STEP 5 목표</div>
+        <div class="goal-text">현장 점검 결과를 ERP에 반영하고, 대수입금 확인 및 계약 완료 후 상태를 "전입 완료"로 확정</div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">1</div><div class="action-content"><div class="action-title">ERP 최종 입력</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>입력 항목</th><th>입력 값 예시</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">계량기 지침</td><td>00234.567 ㎥</td><td class="field-desc">사진 일치 필수</td></tr>
+              <tr><td class="field-name">점검 결과</td><td>합격 / 조건부 / 불합격</td><td class="field-desc">불합격 시 사유 기록</td></tr>
+              <tr><td class="field-name">계약 체결 방법</td><td>셀프(알림톡) / 셀프(웹) / 셀프(앱) / 현장 전자계약</td><td></td></tr>
+              <tr><td class="field-name">대수입금 확인</td><td>확인 완료 / 해당 없음</td><td class="field-desc">대수입금 존재 시 처리 내역 기록</td></tr>
+              <tr><td class="field-name">자동이체 등록</td><td>등록 완료 / 미등록</td><td class="field-desc">미등록 시 고지서 발송</td></tr>
+              <tr><td class="field-name">수납 금액</td><td>10,000원</td><td class="field-desc">교체 없으면 0원</td></tr>
+              <tr><td class="field-name">상태값</td><td><strong>전입 완료</strong></td><td></td></tr>
+              <tr><td class="field-name">공급 개시일</td><td>2026-02-12</td><td class="field-desc">방문일 = 공급 개시일</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">2</div><div class="action-content"><div class="action-title">분기 처리</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>구분</th><th>ERP 상태</th><th>후속 조치</th></tr></thead>
+            <tbody>
+              <tr><td>✅ 합격</td><td><strong>전입 완료</strong></td><td>STEP 6으로 이동</td></tr>
+              <tr><td>⚠️ 조건부 합격</td><td>조건부 완료</td><td>경미한 보수 안내 → 기한 내 재확인</td></tr>
+              <tr><td>🚫 불합격</td><td>보류</td><td>가스 공급 중지 → 배관 수리 → 재점검</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">3</div><div class="action-content"><div class="action-title">승인 완료 체크리스트</div></div></div>
+        <div class="action-detail">
+          <div class="checklist-group">
+            <label><input type="checkbox"> 계량기 지침 입력 (사진 일치)</label>
+            <label><input type="checkbox"> 점검 결과 입력</label>
+            <label><input type="checkbox"> 계약 체결 방법 입력</label>
+            <label><input type="checkbox"> 대수입금 확인 완료</label>
+            <label><input type="checkbox"> 자동이체 등록 여부 입력</label>
+            <label><input type="checkbox"> 수납 금액 입력</label>
+            <label><input type="checkbox"> 상태값 → "전입 완료" 변경</label>
+            <label><input type="checkbox"> 공급 개시일 입력</label>
+          </div>
+        </div>
+      </div>
+      <div class="info-box tip"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">승인 포인트</div><div class="info-box-text"><strong>운영:</strong> 정책 준수 여부 확인 | <strong>채권:</strong> 미정산 및 대수입금 승인 | <strong>사용시설:</strong> 현장 점검 완료 승인 | <strong>CS:</strong> 고객 안내 문구 최종 확인</div></div></div>
+      <div class="completion-box"><h4>✅ STEP 5 완료</h4><p>ERP 상태 "전입 완료" 확정, 공급 개시일 등록</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-step4')">← STEP 4</button>
+        <button class="step-nav-btn next" onclick="showPage('in-step6')">STEP 6. 안내 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 STEP 6 ================ -->
+  <div class="page-section" id="in-step6">
+    <div class="page-header movein">
+      <div class="step-badge">STEP 6 of 6</div>
+      <h2>안내 (고객 안내)</h2>
+      <p class="subtitle">개통 완료 통보, 안전 사용 가이드 제공</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 1~2분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box blue">
+        <div class="goal-label">🎯 STEP 6 목표</div>
+        <div class="goal-text">고객에게 개통 완료 통보, 안전 사용 가이드 제공, 만족도 조사 안내</div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">1</div><div class="action-content"><div class="action-title">개통 완료 알림톡 / SMS 발송</div></div></div>
+        <div class="action-detail">
+          <div class="script-box"><div class="script-label">📱 자동 알림톡 예시</div><div class="script-text">[예스코 도시가스 — 전입 개통 완료]<br><br>■ 고객명: ○○○ 님<br>■ 주소: 서울시 ○○구 ○○동 ○○○<br>■ 계량기 지침: 00234.567 ㎥<br>■ 공급 개시일: 2026-02-12<br>■ 첫 고지서: 다음 달 중순 발송 예정<br><br>▶ 요금 조회·자동이체: www.lsyesco.com<br>▶ 24시간 긴급 신고: 1544-3131<br><br>안전한 가스 사용을 위해 항상 환기에 유의해 주세요.</div></div>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">2</div><div class="action-content"><div class="action-title">전화 후속 안내 (필요 시)</div></div></div>
+        <div class="action-detail">
+          <div class="script-box"><div class="script-label">📞 상담원 → 고객</div><div class="script-text">"○○○ 고객님, 예스코 도시가스입니다. 금일 전입 개통이 정상 완료되었음을 안내드립니다. <em>첫 고지서</em>는 다음 달 중순에 발송되며, 자동이체를 등록하시면 편리하게 납부하실 수 있습니다. 가스 사용 중 냄새가 나거나 이상이 느껴지시면 즉시 밸브를 잠그시고 <em>1544-3131</em>로 연락 부탁드립니다."</div></div>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">3</div><div class="action-content"><div class="action-title">사후 확인 체크리스트</div></div></div>
+        <div class="action-detail">
+          <div class="checklist-group">
+            <label><input type="checkbox"> 개통 완료 알림톡/SMS 발송 확인</label>
+            <label><input type="checkbox"> 요금 안내 (첫 고지서 시기)</label>
+            <label><input type="checkbox"> 안전 사용 가이드 안내</label>
+            <label><input type="checkbox"> 비상연락처 안내 (1544-3131)</label>
+            <label><input type="checkbox"> 만족도 조사 안내 (해당 시)</label>
+          </div>
+          <div class="info-box tip"><div class="info-box-icon">📊</div><div class="info-box-content"><div class="info-box-title">성과 포인트</div><div class="info-box-text"><strong>리드타임 단축</strong> — 처리 속도 향상 | <strong>채권 보호</strong> — 미정산 사전 차단 | <strong>재방문률 감소</strong> — 1회 완료율 증대 | <strong>고객만족 향상</strong> — CSAT 점수 개선</div></div></div>
+        </div>
+      </div>
+      <div class="completion-box"><h4>✅ STEP 6 완료 — 전입 전체 프로세스 종료!</h4></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-step5')">← STEP 5</button>
+        <button class="step-nav-btn next" onclick="showPage('in-exception')">부록: 예외 대응 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 부록 – 예외 대응 ================ -->
+  <div class="page-section" id="in-exception">
+    <div class="page-header movein">
+      <div class="step-badge">부록</div>
+      <h2>전입 예외 대응 가이드</h2>
+    </div>
+    <div class="content-body">
+      <div class="action-card">
+        <div class="action-header"><div class="action-number">!</div><div class="action-content"><div class="action-title">상황별 예외 대응표</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>상황</th><th>긴급도</th><th>상담원 대응</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">미정산 고객 (연체 시)</td><td>🔴 높음</td><td>① 시류 접수 후 채권파트 승인 필요 ② 전입자에게 미납 전가 금지 ③ 이전 거주자/소유자 연락 → 정산 요청 ④ 대수입금 가능 여부 확인</td></tr>
+              <tr><td class="field-name">대수입금 발견</td><td>🟡 보통</td><td>① 담당자 즉시 통보 및 안내 ② 전입자 동의 확인 및 ERP 기록 ③ 결제 완료 후 정상 진행</td></tr>
+              <tr><td class="field-name">플랫폼 장애 (시스템)</td><td>🔴 높음</td><td>① 오프라인 계약서 → 24시간 내 스캔 ② 매니저 전산기기 오프라인 저장 ③ 복구 후 ERP 백필</td></tr>
+              <tr><td class="field-name">당일 긴급 전입</td><td>🔴 높음</td><td>① 임시 개통 → 24시간 내 계약 보완 ② 매니저 일정 확인 → 가능 시간 안내 ③ 알림톡 셀프계약 즉시 발송</td></tr>
+              <tr><td class="field-name">계약 복원 실패</td><td>🔴 높음</td><td>① 신규 계약 재작성 ② 기존 계약 이력 확인 후 복원 시도</td></tr>
+              <tr><td class="field-name">LPG 공급 지역</td><td>🟡 보통</td><td>① LPG 지역 안내 ② 관할 LPG 업체 연락처 안내 ③ ERP "LPG 지역 — 타사 안내" 기록</td></tr>
+              <tr><td class="field-name">ERP/알림톡 시스템 장애</td><td>🔴 높음</td><td>① 수기 메모 → 복구 후 일괄 입력 ② 매니저 전산기기 오프라인 저장 ③ 복구 후 ERP 백필</td></tr>
+              <tr><td class="field-name">가스레인지 → 인덕션</td><td>🟢 낮음</td><td>① 레인지 연결 불필요 ② 보일러만 사용 시 보일러 점검+공급 ③ 완전 인덕션 시 공급 계약 불필요 안내</td></tr>
+              <tr><td class="field-name">본인 인증 실패</td><td>🟡 보통</td><td>① 생년월일·연락처 재확인 ② 현장 방문 시 신분증 확인 후 전자계약 ③ ERP 비고 기록</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-step6')">← STEP 6</button>
+        <button class="step-nav-btn next" onclick="showPage('in-cost')">비용 안내표 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 부록 – 비용 안내표 ================ -->
+  <div class="page-section" id="in-cost">
+    <div class="page-header movein">
+      <div class="step-badge">부록</div>
+      <h2>전입 비용 안내표 (2026년 기준)</h2>
+    </div>
+    <div class="content-body">
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">₩</div><div class="action-content"><div class="action-title">서울 지역</div></div></div>
+        <div class="action-detail">
+          <table class="system-table"><thead><tr><th>항목</th><th>금액</th><th>비고</th></tr></thead><tbody>
+            <tr><td>퓨즈콕 교체</td><td>4,000원</td><td></td></tr>
+            <tr><td>호스 교체</td><td>6,000원</td><td>기본 2m 기준</td></tr>
+            <tr><td>퓨즈콕 + 호스</td><td>10,000원</td><td></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">₩</div><div class="action-content"><div class="action-title">경기 지역</div></div></div>
+        <div class="action-detail">
+          <table class="system-table"><thead><tr><th>항목</th><th>자재 지참 시</th><th>자재 미지참 시</th></tr></thead><tbody>
+            <tr><td>퓨즈콕 교체</td><td>21,000~22,000원</td><td>27,000~28,000원</td></tr>
+            <tr><td>호스 교체</td><td>21,000~22,000원</td><td>30,000~31,000원</td></tr>
+            <tr><td>퓨즈콕 + 호스</td><td>—</td><td>36,000~37,000원</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">+</div><div class="action-content"><div class="action-title">추가 비용</div></div></div>
+        <div class="action-detail">
+          <table class="system-table"><thead><tr><th>항목</th><th>금액</th><th>비고</th></tr></thead><tbody>
+            <tr><td>호스 2m 초과 시</td><td>1m당 2,000원</td><td></td></tr>
+            <tr><td>주말·공휴일 방문</td><td>—</td><td>현재 휴무 (방문 불가)</td></tr>
+            <tr><td>인덕션 전환 출장</td><td>20,000~30,000원</td><td>별도 문의</td></tr>
+          </tbody></table>
+          <div class="info-box tip"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">안내 팁</div><div class="info-box-text">"정확한 비용은 현장 점검 후 안내드리겠습니다"라고 안내해 주세요.</div></div></div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-exception')">← 예외 대응</button>
+        <button class="step-nav-btn next" onclick="showPage('in-scripts')">스크립트 모음 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전입 부록 – 스크립트 모음 ================ -->
+  <div class="page-section" id="in-scripts">
+    <div class="page-header movein">
+      <div class="step-badge">부록</div>
+      <h2>전입 스크립트 모음</h2>
+    </div>
+    <div class="content-body">
+      <div class="tab-group">
+        <button class="tab-btn active" onclick="switchScriptTab(this,'in-script-normal')">일반 전입 접수</button>
+        <button class="tab-btn" onclick="switchScriptTab(this,'in-script-arrear')">미정산 발견 시</button>
+        <button class="tab-btn" onclick="switchScriptTab(this,'in-script-urgent')">당일 긴급 접수</button>
+      </div>
+      <div id="in-script-normal" class="script-tab-content">
+        <div class="script-box"><h4>📞 [오프닝]</h4><p>"감사합니다, 예스코 도시가스 ○○○입니다. 무엇을 도와드릴까요?"</p></div>
+        <div class="script-box"><h4>📞 [본인확인]</h4><p>"전입 접수를 도와드리겠습니다. 고객님 성함과 생년월일, 연락처를 말씀해 주세요."</p></div>
+        <div class="script-box"><h4>📞 [정보수집]</h4><p>"새로 이사하시는 주소와 이사 예정일을 말씀해 주세요."</p></div>
+        <div class="script-box"><h4>📞 [계약 안내]</h4><p>"고객님, 전입 신청과 동시에 사용계약을 간편하게 체결하실 수 있습니다. 문자로 발송된 링크를 통해 본인인증 후 약 <strong>2분</strong>이면 완료됩니다. <strong>홈페이지</strong>나 <strong>가스앱(현재 미개발)</strong>에서도 가능하시며, 어려우신 경우 매니저 방문 시 <strong>휴대용 전산기기</strong>로도 가능합니다."</p></div>
+        <div class="script-box"><h4>📞 [예약 확인]</h4><p>"<strong>[날짜] [시간]</strong>에 매니저 방문 예약을 잡아드렸습니다. 시간 변경 시 <strong>1544-3131</strong>로 연락 부탁드립니다."</p></div>
+        <div class="script-box"><h4>📞 [클로징]</h4><p>"접수가 완료되었습니다. 추가 문의 있으신가요? 감사합니다, 좋은 하루 되세요!"</p></div>
+      </div>
+      <div id="in-script-arrear" class="script-tab-content" style="display:none;">
+        <div class="script-box"><h4>📞 [미정산 안내]</h4><p>"고객님, 시스템 확인 결과 기존 미정산 내역이 있습니다. 정상 후 전입 처리가 가능합니다. 이 금액은 고객님과 무관하며, 이전 거주자에게 별도 안내할 예정입니다."</p></div>
+        <div class="script-box"><h4>📞 [대수입금 안내]</h4><p>"빠른 처리를 원하시면 대리 납부도 가능합니다. 대리 납부 시 영수증이 발행됩니다. 원하시겠습니까?"</p></div>
+        <div class="info-box danger"><div class="info-box-icon">⛔</div><div class="info-box-content"><div class="info-box-title">절대 금지</div><div class="info-box-text">이전 거주자 미납 요금을 전입자에게 강요하거나 전가하는 행위는 금지됩니다.</div></div></div>
+      </div>
+      <div id="in-script-urgent" class="script-tab-content" style="display:none;">
+        <div class="script-box"><h4>📞 [긴급 접수]</h4><p>"오늘 이사를 하셨군요, 당일 긴급 접수를 도와드리겠습니다. 오늘 매니저 방문이 <strong>[가능/불가능]</strong>합니다."</p></div>
+        <div class="script-box"><h4>📞 [가능 시]</h4><p>"오늘 <strong>[시간]</strong>에 방문이 가능합니다. 알림톡을 지금 발송해 드릴 테니 셀프계약을 먼저 진행해 주세요."</p></div>
+        <div class="script-box"><h4>📞 [불가능 시]</h4><p>"죄송합니다, 내일 <strong>오전 우선 배정</strong>으로 예약하겠습니다. 보일러는 중간밸브가 열려 있다면 사용 가능합니다. 가스 냄새 시 즉시 밸브 잠금 후 <strong>1544-3131</strong>로 연락 부탁드립니다."</p></div>
+      </div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('in-cost')">← 비용 안내표</button>
+        <button class="step-nav-btn next purple" onclick="switchProcess('out');showPage('out-overview');">전출 매뉴얼로 이동 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================ -->
+  <!-- ==================== 전출 (MOVE-OUT) ========================== -->
+  <!-- ================================================================ -->
+
+  <!-- ================ 전출 전체 흐름 ================ -->
+  <div class="page-section" id="out-overview">
+    <div class="page-header moveout">
+      <div class="step-badge">📕 전출 프로세스 — 표준 6단계 (채권 관점 반영)</div>
+      <h2>전출 프로세스 실무 가이드</h2>
+      <p class="subtitle">예스코 도시가스 | 고지상태 확인 필수 · 가정산 동의 필수 · 단계적 정산 안내 · 고객센터 상담원용 빠른 참조 가이드</p>
+      <div class="meta-row">
+        <span class="meta-item">⏱ 전화 5~7분 / 현장 15~20분</span>
+        <span class="meta-item">📅 업데이트: 2026.02</span>
+        <span class="meta-item">📞 1544-3131</span>
+      </div>
+    </div>
+    <div class="content-body">
+      <div class="info-box purple">
+        <div class="info-box-icon">📌</div>
+        <div class="info-box-content">
+          <div class="info-box-title">운영 원칙: 최종 정산 후 전출처리 (채권파트 반영) 예외 허용</div>
+          <div class="info-box-text">원칙: 고지상태 확인 + 현장방문 원칙 + 가정산 및 미납 동의 필수 + 최종 검침 및 요금 정산 완료 후 전출처리 | 예외: 이사 완료 + 가상계좌 입금 구두 약속 시 전출처리 선행 가능 | 업무 미완료 시 1일/2일/3일차 단계적 문자 발송</div>
+        </div>
+      </div>
+      <div class="process-flow">
+        <div class="flow-step-box"><div class="flow-icon purple">📋<div class="flow-number purple">1</div></div><div class="flow-label">전출접수</div><div class="flow-sub">현장방문 원칙</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon purple">💰<div class="flow-number purple">2</div></div><div class="flow-label">상태확인</div><div class="flow-sub">고지상태 확인</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon purple">🛡️<div class="flow-number purple">3</div></div><div class="flow-label">안전점검</div><div class="flow-sub">마감 조치</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon purple">🧾<div class="flow-number purple">4</div></div><div class="flow-label">최종정산</div><div class="flow-sub">가정산+미납동의</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon purple">❌<div class="flow-number purple">5</div></div><div class="flow-label">전출처리</div><div class="flow-sub">업무완료 확인</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step-box"><div class="flow-icon purple">📨<div class="flow-number purple">6</div></div><div class="flow-label">확인안내</div><div class="flow-sub">소유자 포함</div></div>
+      </div>
+
+      <!-- 단계적 정산 안내 (업무 미완료 시 자동 발송) -->
+      <div class="info-box warning">
+        <div class="info-box-icon">📬</div>
+        <div class="info-box-content">
+          <div class="info-box-title">단계적 정산 안내 (업무 미완료 시 자동 발송)</div>
+          <div class="info-box-text">
+            <strong>1일차:</strong> 전출완료(정산)안내 문자 (1회) →
+            <strong>2일차:</strong> 전출완료(정산)안내 문자 (2회) →
+            <strong>3일차:</strong> 전출완료(정산)안내 문자 (최고)<br>
+            목적: 미정산 방지 및 고객 편의 제공
+          </div>
+        </div>
+      </div>
+
+      <!-- 민원 예방 스크립트 예시 (정산 안내 강화) -->
+      <div class="info-box info">
+        <div class="info-box-icon">💬</div>
+        <div class="info-box-content">
+          <div class="info-box-title">민원 예방 스크립트 예시 (정산 안내 강화)</div>
+          <div class="info-box-text">"고객님, 등기 반환을 위해 주택 소유자 연락처만 간단히 확인하고 있습니다. 무자 발송 후 즉시 삭제됩니다. 전출하시는 요청에 따라 먼저 도와드리며, 최종 요금 확인 후 안내드린 방법으로 정산 부탁드립니다. 3일 이내 무자를 안내해 드리겠습니다."</div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <div></div>
+        <button class="step-nav-btn next purple" onclick="showPage('out-step1')">STEP 1. 전출접수 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 STEP 1 ================ -->
+  <div class="page-section" id="out-step1">
+    <div class="page-header moveout">
+      <div class="step-badge">STEP 1 of 6</div>
+      <h2>전출접수 (현장방문 원칙)</h2>
+      <p class="subtitle">본인확인 → 전출 정보 수집 → 방문 예약 → 부가서비스 해지 안내</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 3~5분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box purple">
+        <div class="goal-label">🎯 STEP 1 목표</div>
+        <div class="goal-text">본인확인 → 전출 정보 수집 → 방문 예약 등록 → 부가서비스 해지 안내</div>
+      </div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">본인확인 · 정보 수집</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 오프닝</div><div class="script-text">"감사합니다, 예스코 도시가스 ○○○입니다. 무엇을 도와드릴까요?"</div></div>
+          <div class="script-box purple"><div class="script-label">📞 본인확인</div><div class="script-text">"전출(가스 해지) 접수를 도와드리겠습니다. 고객님 성함과 납부자 번호(또는 생년월일), 연락처를 말씀해 주세요."</div></div>
+          <div class="script-box purple"><div class="script-label">📞 정보 수집</div><div class="script-text">"현재 사용 중이신 주소와 이사 예정일을 말씀해 주세요. 이사 당일 매니저 방문이 필요하며, 희망하시는 시간대가 있으신가요?"</div></div>
+          <table class="system-table">
+            <thead><tr><th>ERP 필드명</th><th>입력 내용</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">고객명</td><td>○○○</td><td></td></tr>
+              <tr><td class="field-name">납부자 번호</td><td>자동 조회</td><td class="field-desc">미확인 시 생년월일로 검색</td></tr>
+              <tr><td class="field-name">연락처</td><td>010-XXXX-XXXX</td><td class="field-desc">방문 연락용</td></tr>
+              <tr><td class="field-name">전출 주소</td><td>현재 사용 주소</td><td></td></tr>
+              <tr><td class="field-name">이사 예정일</td><td>YYYY-MM-DD</td><td></td></tr>
+              <tr><td class="field-name">방문 희망 시간</td><td>오전 / 오후</td><td></td></tr>
+              <tr><td class="field-name">빌트인 가스기기</td><td>있음 / 없음</td><td></td></tr>
+              <tr><td class="field-name">자동이체 등록 여부</td><td>등록 / 미등록</td><td class="field-desc">등록 시 해지 안내</td></tr>
+              <tr><td class="field-name">접수 채널</td><td>전화 / 홈페이지 / 가스앱(현재 미개발)</td><td></td></tr>
+              <tr><td class="field-name">고지상태 확인</td><td>청구 상태 점검</td><td class="field-desc">필수 체크</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACTION 2 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">방문 예약 · 부가서비스 해지 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 방문 예약</div><div class="script-text">"<em>[날짜] [시간]</em>에 매니저 방문 예약을 잡아드렸습니다. 방문시 계량기 지침 기록, 가스 밸브 잠금, 봉인 작업을 진행합니다. 약 <em>15~20분</em> 소요됩니다."</div></div>
+          <div class="script-box purple"><div class="script-label">📞 부가서비스 해지</div><div class="script-text">"현재 등록된 자동이체, 알림톡, 자가검침은 전출 완료 시 자동 해지됩니다. 별도 해지 신청 불필요합니다."</div></div>
+          <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">겨울철 동파 주의 (11~3월)</div><div class="info-box-text">"이사 전까지 보일러 전원을 '외출' 모드로 유지해 주세요. 수도 배관 동파 방지를 위해 수도꼭지를 약간 열어 두시면 좋습니다."</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 3 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">빌트인 가스기기 확인</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 빌트인 확인</div><div class="script-text">"혹시 현재 주소에 빌트인 가스 쿡탑이나 오븐이 설치되어 있나요? 빌트인 기기가 있는 경우 철거 시 별도 작업이 필요할 수 있습니다."</div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 4 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">4</div><div class="action-content"><div class="action-title">접수 완료 체크리스트</div></div></div>
+        <div class="action-detail">
+          <div class="checklist-group">
+            <label><input type="checkbox"> 본인확인 완료</label>
+            <label><input type="checkbox"> 전출 주소 · 이사 예정일 입력</label>
+            <label><input type="checkbox"> 고지상태 확인 — 청구 상태 점검</label>
+            <label><input type="checkbox"> 방문 예약 시간 등록</label>
+            <label><input type="checkbox"> 빌트인 여부 확인</label>
+            <label><input type="checkbox"> 부가서비스 해지 안내</label>
+            <label><input type="checkbox"> 겨울철 동파 주의 안내</label>
+            <label><input type="checkbox"> 미납 요금 사전 확인</label>
+            <label><input type="checkbox"> 가정산 동의 확인 — 요금 가정산 필수</label>
+            <label><input type="checkbox"> 미납 동의 필수 — 미납 고객 동의 취득</label>
+          </div>
+          <div class="script-box purple"><div class="script-label">📞 클로징</div><div class="script-text">"전출 접수가 완료되었습니다. <em>[날짜] [시간]</em>에 매니저가 방문 예정이며, 방문 전 연락을 드립니다. 시간 변경 시 <em>1544-3131</em>로 연락 부탁드립니다."</div></div>
+        </div>
+      </div>
+
+      <div class="completion-box"><h4>✅ STEP 1 완료</h4><p>전출 접수 등록, 방문 예약, 부가서비스 안내, 고지상태 확인 완료</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-overview')">← 전체 흐름</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-step2')">STEP 2. 상태확인 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 STEP 2 ================ -->
+  <div class="page-section" id="out-step2">
+    <div class="page-header moveout">
+      <div class="step-badge">STEP 2 of 6</div>
+      <h2>상태확인 (고지/미납/종지)</h2>
+      <p class="subtitle">고지상태 확인 → 미납·연체 여부 확인 → 가정산 예상액 안내 → 미납 동의</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 2~3분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box purple">
+        <div class="goal-label">🎯 STEP 2 목표</div>
+        <div class="goal-text">고지상태 확인 → 미납·연체 여부 확인 → 가정산 예상액 안내 → 미납 동의 기록</div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">고지상태 · 미납 · 연체 조회</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>확인 항목</th><th>정상</th><th>예외 (조치 필요)</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">고지상태 확인</td><td>청구 정상</td><td>고지 이상 시 → 상태 점검 후 진행</td></tr>
+              <tr><td class="field-name">미납 잔액</td><td>0원</td><td>미납 금액 존재 → 가정산 동의 필수 + 미납 금액 명시</td></tr>
+              <tr><td class="field-name">연체 기간</td><td>없음</td><td>3개월 이상 → 공급 중지 경고</td></tr>
+              <tr><td class="field-name">자동이체 상태</td><td>등록/미등록</td><td>등록 시 최종 정산 후 해지</td></tr>
+              <tr><td class="field-name">가정산 동의 확인</td><td>—</td><td>요금 가정산 필수 · 미납 고객 동의 취득</td></tr>
+            </tbody>
+          </table>
+          <div class="branch-container">
+            <div class="branch-card normal"><div class="branch-label">✅ 정상</div><div class="branch-title">미납 없음</div><div class="branch-text">정상 진행</div></div>
+            <div class="branch-card exception"><div class="branch-label">🚨 미납 있음</div><div class="branch-title">미납 고객: 가정산 동의 필수 + 미납 금액 명시</div><div class="branch-text">미납+최종사용 합산 정산 · 미납 동의 기록 필수</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">고객 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 정상</div><div class="script-text">"고객님, 미납 요금 없이 정상 상태입니다. 전출 당일 매니저가 최종 계량기 지침 확인 후 정산해 드리겠습니다."</div></div>
+          <div class="script-box outbound"><div class="script-label">📞 미납 있음</div><div class="script-text">"고객님, 현재 미납 요금이 <em>[금액]원</em> 확인됩니다. 전출 시 미납+최종 사용 요금을 합산 정산됩니다. 가상계좌 또는 현장 카드 결제로 납부 가능합니다. <em>미납 요금 정산에 동의</em>하시겠습니까?"</div></div>
+          <div class="info-box danger"><div class="info-box-icon">⛔</div><div class="info-box-content"><div class="info-box-title">3개월 이상 연체 시</div><div class="info-box-text">"3개월 이상 연체 시 공급 중지 및 계약 해지가 진행될 수 있습니다. 전출 전 미납 요금 납부를 권장드립니다."</div></div></div>
+        </div>
+      </div>
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">가정산 예상액 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 가정산 안내</div><div class="script-text">"현재까지 사용량 기준 예상 정산 금액은 약 <em>[금액]원</em>입니다. 정확한 금액은 전출 당일 확정됩니다."</div></div>
+          <div class="info-box info"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">가정산 산출</div><div class="info-box-text">ERP [가정산] 버튼 클릭 시 자동 산출. (최종−이전 지침)×단가+부가세+미납</div></div></div>
+        </div>
+      </div>
+      <div class="completion-box"><h4>✅ STEP 2 완료</h4><p>고지상태 확인, 미납 확인, 가정산 안내, 미납 동의 기록</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-step1')">← STEP 1</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-step3')">STEP 3. 안전점검 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 STEP 3 ================ -->
+  <div class="page-section" id="out-step3">
+    <div class="page-header moveout">
+      <div class="step-badge">STEP 3 of 6</div>
+      <h2>안전점검 · 마감 조치</h2>
+      <p class="subtitle">안전 조치(밸브 잠금, 가스 누출 확인) → 계량기 봉인 → 지침 기록 → 소유자 연락처 수집</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 15~20분 (현장)</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box purple">
+        <div class="goal-label">🎯 STEP 3 목표</div>
+        <div class="goal-text">안전 조치(밸브 잠금, 가스 누출 확인) → 계량기 봉인 → 지침 기록 → 소유자 연락처 수집</div>
+      </div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">사전 연락 (방문 10~15분 전)</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 매니저 → 고객</div><div class="script-text">"안녕하세요, 고객님. 예스매니저 ○○○입니다. 금일 전출로 <em>[시간]</em>에 방문하여 안전점검 및 사용요금 정산 예정입니다.<br><br>전출 시 가스계량기를 잠글 경우, 가스사용이 불가합니다. 이에, 가스 사용 재계약 안내를 위해 <em>소유자 연락처</em>가 필요하여 매니저 방문 시 수집할 예정임을 안내드립니다.<br><br>정보 제공 시에는 반드시 <em>소유자의 동의</em>를 받은 후 전달해 주시기 바랍니다."</div></div>
+          <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">겨울철 동파 주의 (11~3월)</div><div class="info-box-text">"매니저 방문 전까지 보일러 전원을 '외출' 모드로 유지해 주세요. 가스 차단 후 보일러 사용 불가합니다. 소유자 및 새 전입자분께 동파 위험 안내 부탁드립니다."</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 2 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">현장 작업 체크리스트 (안전점검)</div></div></div>
+        <div class="action-detail">
+          <div class="checklist-group">
+            <label><input type="checkbox"> 고객 본인확인 (성명·연락처)</label>
+            <label><input type="checkbox"> 계량기 지침 기록 (사진 촬영 + ERP)</label>
+            <label><input type="checkbox"> 전출 시점 계량기 지침 사진 촬영 요청 (고객)</label>
+            <label><input type="checkbox"> 레인지(쿡탑) 호스 분리</label>
+            <label><input type="checkbox"> 보일러 호스 상태 확인</label>
+            <label><input type="checkbox"> 중간밸브 잠금</label>
+            <label><input type="checkbox"> 배관 말단 막음 처리</label>
+            <label><input type="checkbox"> 퓨즈콕 철거 또는 잠금</label>
+            <label><input type="checkbox"> 빌트인 기기 확인 (해당 시)</label>
+            <label><input type="checkbox"> 안전 조치: 밸브 잠금, 가스 누출 확인</label>
+            <label><input type="checkbox"> 가스 누출 최종 검사</label>
+            <label><input type="checkbox"> 계량기 봉인</label>
+            <label><input type="checkbox"> 철거 완료 확인 — 매니저 전산기기에서 고객 전자서명</label>
+            <label><input type="checkbox"> 소유자(집주인) 연락처 수집 (고객 동의 하)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTION 3 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">소유자(집주인) 연락처 수집</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 매니저 → 고객</div><div class="script-text">"주소지 전출로 가스계량기를 잠글 경우, 가스사용이 불가합니다. 이에, 가스 사용 재계약 안내를 위해 <em>소유자 연락처</em>가 필요하여 수집합니다.<br><br>정보 제공 시에는 반드시 <em>소유자의 동의</em>를 받은 후 전달해 주시기 바랍니다."</div></div>
+          <div class="info-box danger"><div class="info-box-icon">⛔</div><div class="info-box-content"><div class="info-box-title">개인정보 수집 원칙 — 법무 지침</div><div class="info-box-text"><strong>법적 근거:</strong> 개인정보보호법 제15조 제1항 제6호 | <strong>최소 수집:</strong> 연락처만 수집 (성명 불필요) | <strong>출처 고지:</strong> 소유자 요청 시 즉시 고지 | <strong>일회성 활용:</strong> 문자 발송 후 즉시 파기 | <strong>완전 삭제:</strong> 복구 불가능한 방법으로 파기 | <strong>공급규정 개정:</strong> 임차인 고지의무 부과 필요</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 4 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">4</div><div class="action-content"><div class="action-title">고객 부재 시 처리</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📱 문자 발송</div><div class="script-text">"[예스코 도시가스] ○○○ 고객님, 매니저가 전출 방문하였으나 부재중이셨습니다. 30분 내 연락 부탁드립니다. ☎ 1544-3131"</div></div>
+          <div class="info-box info"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">부재 시 절차</div><div class="info-box-text">문자 발송 → 30분 대기 → 3회 재연락(10분 간격) → 안내문 부착 후 철수. 고객이 지침 사진 전송+밸브 잠금 확인 가능 시 → 팀장 승인 후 예외 처리.</div></div></div>
+        </div>
+      </div>
+
+      <div class="completion-box"><h4>✅ STEP 3 완료</h4><p>안전점검, 봉인, 지침 기록, 소유자 정보 수집</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-step2')">← STEP 2</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-step4')">STEP 4. 최종정산 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 STEP 4 ================ -->
+  <div class="page-section" id="out-step4">
+    <div class="page-header moveout">
+      <div class="step-badge">STEP 4 of 6</div>
+      <h2>최종정산 (가정산 및 미납 동의)</h2>
+      <p class="subtitle">계량기 지침 기반 사용량 산출 → 요금 계산 → 가정산+미납 동의 → 총액 안내 → 납부 방법</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 3~5분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box purple">
+        <div class="goal-label">🎯 STEP 4 목표</div>
+        <div class="goal-text">계량기 지침 기반 사용량 산출 → 요금 계산 → 가정산+미납 동의 → 총액 안내 → 납부 방법 안내</div>
+      </div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">정산 금액 산출</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>정산 항목</th><th>산출 방법</th><th>예시</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">이전 검침 지침</td><td>ERP 자동 조회</td><td>00200.000 ㎥</td></tr>
+              <tr><td class="field-name">최종 지침 (전출 당일)</td><td>매니저 현장 기록</td><td>00234.567 ㎥</td></tr>
+              <tr><td class="field-name">사용량</td><td>최종 − 이전</td><td>34.567 ㎥</td></tr>
+              <tr><td class="field-name">가스 요금</td><td>사용량 × 단가</td><td>28,540원</td></tr>
+              <tr><td class="field-name">부가세 (10%)</td><td>가스 요금 × 10%</td><td>2,854원</td></tr>
+              <tr><td class="field-name">기존 미납</td><td>ERP 조회</td><td>0원</td></tr>
+              <tr><td class="field-name">대수입금 차감</td><td>해당 시 차감</td><td>0원</td></tr>
+              <tr><td class="field-name" style="background:#e3f2fd;"><strong>총 정산액</strong></td><td style="background:#e3f2fd;">요금 + 부가세 + 미납 − 대수입금</td><td style="background:#e3f2fd;"><strong>31,394원</strong></td></tr>
+            </tbody>
+          </table>
+          <div class="info-box info"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">요금 계산 TIP</div><div class="info-box-text">ERP [정산] 버튼 클릭 시 자동 산출. 수동 확인: www.lsyesco.com → 요금조회</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 2 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">정산 금액 · 납부 방법 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 정산 안내</div><div class="script-text">"고객님, 최종 정산 결과를 안내드립니다.<br>■ 이전 지침: <em>00200.000 ㎥</em><br>■ 최종 지침: <em>00234.567 ㎥</em><br>■ 사용량: <em>34.567 ㎥</em><br>■ 가스 요금 + 부가세: <em>31,394원</em><br>■ 기존 미납: <em>0원</em><br>■ <em>총 정산액: 31,394원</em>"</div></div>
+          <div class="script-box purple"><div class="script-label">📞 납부 방법</div><div class="script-text">"납부 방법은 두 가지입니다.<br><em>① 가상계좌 입금</em> — 알림톡으로 가상계좌번호가 발송됩니다.<br><em>② 카드 결제</em> — 현장에서 매니저에게 카드 결제 가능합니다.<br>어떤 방법을 원하시겠습니까?"</div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 3 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">분기 처리</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>상황</th><th>처리</th><th>후속</th></tr></thead>
+            <tbody>
+              <tr><td>✅ 즉시 납부</td><td>현장 카드 / 계좌이체</td><td>STEP 5 이동</td></tr>
+              <tr><td>⏳ 가상계좌 발송</td><td>기한 내 입금 대기</td><td>STEP 5 이동 (납부 대기)</td></tr>
+              <tr><td>🚫 이의 제기</td><td>지침 사진 재확인</td><td>재산출 또는 팀장 보고</td></tr>
+            </tbody>
+          </table>
+          <div class="script-box outbound"><div class="script-label">📞 이의 제기 시</div><div class="script-text">"고객님, 요금에 이의가 있으신 경우 매니저가 촬영한 계량기 지침 사진을 기준으로 재확인해 드리겠습니다."</div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 4 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">4</div><div class="action-content"><div class="action-title">과납(초과 납부) 환불 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 과납 환불</div><div class="script-text">"고객님, <em>[금액]원</em>이 초과 납부 상태입니다. 환불 계좌를 알려주시면 <em>영업일 기준 3~5일 내</em> 환불 처리됩니다."</div></div>
+          <div class="info-box info"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">과납 환불 처리</div><div class="info-box-text">ERP [환불 요청] → 환불 계좌 입력 → 재무팀 자동 연계 → 3~5 영업일</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 5: 채권파트 승인 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">5</div><div class="action-content"><div class="action-title">채권파트 승인 — 고지상태 및 정산 승인</div></div></div>
+        <div class="action-detail">
+          <div class="info-box purple"><div class="info-box-icon">🔑</div><div class="info-box-content"><div class="info-box-title">승인 포인트</div><div class="info-box-text"><strong>운영 파트:</strong> 잔여 리스크 점검 | <strong>채권 파트:</strong> 고지상태 및 정산 승인 | <strong>사용시설:</strong> 안전 조치 승인 | <strong>CS 파트:</strong> 민원 발생 리스크 점검</div></div></div>
+        </div>
+      </div>
+
+      <div class="completion-box"><h4>✅ STEP 4 완료</h4><p>정산 금액 확정, 가정산+미납 동의, 납부 방법 안내 완료</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-step3')">← STEP 3</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-step5')">STEP 5. 전출처리 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 STEP 5 ================ -->
+  <div class="page-section" id="out-step5">
+    <div class="page-header moveout">
+      <div class="step-badge">STEP 5 of 6</div>
+      <h2>전출처리 (업무완료 확인)</h2>
+      <p class="subtitle">ERP "전출 완료" 확정 → 공급 중지 → 부가서비스 해지 → 계약 종료</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 2~3분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box purple">
+        <div class="goal-label">🎯 STEP 5 목표</div>
+        <div class="goal-text">ERP 상태 "전출 완료" 확정 → 업무완료 확인 → 공급 중지 → 기본요금 정지 → 부가서비스 해지 → 계약 종료</div>
+      </div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">ERP 최종 입력</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>입력 항목</th><th>입력 값 예시</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">상태값</td><td><strong>전출 완료</strong></td><td></td></tr>
+              <tr><td class="field-name">최종 검침 지침</td><td>00234.567 ㎥</td><td class="field-desc">사진 일치 필수</td></tr>
+              <tr><td class="field-name">정산 금액</td><td>31,394원</td><td></td></tr>
+              <tr><td class="field-name">납부 상태</td><td>납부 완료 / 납부 대기 / 미정산</td><td></td></tr>
+              <tr><td class="field-name">공급 중지일</td><td>2026-02-12</td><td class="field-desc">방문일 = 공급 중지일</td></tr>
+              <tr><td class="field-name">자동이체</td><td>해지 완료</td><td></td></tr>
+              <tr><td class="field-name">알림톡</td><td>해지 완료</td><td></td></tr>
+              <tr><td class="field-name">자가검침</td><td>해지 완료</td><td></td></tr>
+              <tr><td class="field-name">소유자 연락처</td><td>010-XXXX-XXXX</td><td class="field-desc">동의 시에만</td></tr>
+              <tr><td class="field-name">계약 종료일</td><td>2026-02-12</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACTION 2 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">분기 처리 (원칙/예외)</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>구분</th><th>ERP 처리</th><th>후속 조치</th></tr></thead>
+            <tbody>
+              <tr><td>✅ 납부 완료 (원칙)</td><td>전출 완료</td><td>STEP 6 알림톡 발송 → 종료</td></tr>
+              <tr><td>⏳ 납부 대기 (예외)</td><td>전출 완료 (미수금)</td><td>가상계좌 대기 → 구두 약속 시 전출처리 선행 가능 → D+7 미입금 시 독촉</td></tr>
+              <tr><td>🚨 미정산</td><td>전출 완료 (미정산)</td><td>채권팀 연계 → 독촉 프로세스 → 단계적 문자 발송</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ACTION 3 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">전출 완료 체크리스트</div></div></div>
+        <div class="action-detail">
+          <div class="checklist-group">
+            <label><input type="checkbox"> 상태값 → "전출 완료" 변경</label>
+            <label><input type="checkbox"> 최종 검침 지침 입력 (사진 일치)</label>
+            <label><input type="checkbox"> 정산 금액 입력</label>
+            <label><input type="checkbox"> 납부 상태 입력</label>
+            <label><input type="checkbox"> 공급 중지일 입력</label>
+            <label><input type="checkbox"> 자동이체 해지 확인</label>
+            <label><input type="checkbox"> 알림톡·자가검침 해지 확인</label>
+            <label><input type="checkbox"> 소유자 연락처 입력 (동의 시)</label>
+            <label><input type="checkbox"> 계약 종료일 입력</label>
+            <label><input type="checkbox"> 업무완료 확인 — 모든 처리 항목 완료 여부</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="completion-box"><h4>✅ STEP 5 완료</h4><p>ERP 전출 완료 확정, 업무완료 확인, 공급 중지, 계약 종료</p></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-step4')">← STEP 4</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-step6')">STEP 6. 확인안내 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 STEP 6 ================ -->
+  <div class="page-section" id="out-step6">
+    <div class="page-header moveout">
+      <div class="step-badge">STEP 6 of 6</div>
+      <h2>확인안내 (소유자 포함)</h2>
+      <p class="subtitle">전출 완료 알림톡 → 단계적 정산 안내 → 소유자 재계약 안내 → 개인정보 준수</p>
+      <div class="meta-row"><span class="meta-item">⏱ 소요: 1~2분</span></div>
+    </div>
+    <div class="content-body">
+      <div class="goal-box purple">
+        <div class="goal-label">🎯 STEP 6 목표</div>
+        <div class="goal-text">전출 완료 알림톡 발송 → 단계적 정산 안내 → 소유자 재계약 안내 → 개인정보 준수</div>
+      </div>
+
+      <!-- ACTION 1 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">전출 완료 알림톡 / SMS</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📱 자동 알림톡 예시</div><div class="script-text">[예스코 도시가스 — 전출 완료 안내]<br><br>■ 고객명: ○○○ 님<br>■ 주소: 서울시 ○○구 ○○동 ○○○<br>■ 최종 지침: 00234.567 ㎥<br>■ 정산액: 31,394원<br>■ 납부 상태: 납부 완료<br>■ 공급 중지일: 2026-02-12<br><br>▶ 미납 시 가상계좌: [은행명] [계좌번호]<br>▶ 문의: 1544-3131 | www.lsyesco.com<br><br>그동안 이용해 주셔서 감사합니다.</div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 2: 단계적 정산 안내 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">단계적 정산 안내 (업무 미완료 시 자동 발송)</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>시점</th><th>조치</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name" style="color:#16A34A;">1일차</td><td>전출완료(정산)안내 문자 전송 (1회)</td><td>자동 발송</td></tr>
+              <tr><td class="field-name" style="color:#F59E0B;">2일차</td><td>전출완료(정산)안내 문자 전송 (2회)</td><td>자동 발송</td></tr>
+              <tr><td class="field-name" style="color:#DC2626;">3일차</td><td>전출완료(정산)안내 문자 전송 (최고)</td><td>자동 발송</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box info"><div class="info-box-icon">🎯</div><div class="info-box-content"><div class="info-box-title">목적</div><div class="info-box-text">미정산 방지 및 고객 편의 제공. 3일 이내 문자를 통해 안내 완료.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 3: 미정산 독촉 타임라인 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">미정산 독촉 타임라인 (3일차 이후)</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>시점</th><th>조치</th><th>담당</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">D+0</td><td>가상계좌 알림톡 발송</td><td>시스템 자동</td></tr>
+              <tr><td class="field-name">D+3</td><td>리마인드 알림톡/SMS</td><td>시스템 자동</td></tr>
+              <tr><td class="field-name">D+7</td><td>2차 리마인드 + 유선 연락</td><td>상담원</td></tr>
+              <tr><td class="field-name">D+14</td><td>3차 독촉 전화 + 독촉장</td><td>상담원</td></tr>
+              <tr><td class="field-name">D+30</td><td>채권팀 이관</td><td>채권팀</td></tr>
+            </tbody>
+          </table>
+          <div class="script-box outbound"><div class="script-label">📞 D+7 독촉 전화</div><div class="script-text">"○○○ 고객님, 예스코 도시가스입니다. <em>[전출일]</em> 전출 정산 금액 <em>[금액]원</em>이 미납 상태입니다. 가상계좌 <em>[은행명] [계좌번호]</em>로 <em>[기한]</em>까지 입금 부탁드립니다. 분할 납부도 상담 가능합니다."</div></div>
+          <div class="info-box tip"><div class="info-box-icon">💡</div><div class="info-box-content"><div class="info-box-title">사후 통제</div><div class="info-box-text">T+1 입금 확인 대시보드를 통해 정산 상태 모니터링. 채권파트 승인: 고지상태 및 정산 승인.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 4 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">4</div><div class="action-content"><div class="action-title">소유자 재계약 안내</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 소유자 연락</div><div class="script-text">"안녕하세요, 예스코 도시가스입니다. <em>[주소]</em>의 기존 세입자가 전출 완료되어 안내드립니다. 현재 가스 공급이 중지된 상태이며, 새 입주자가 있으시면 전입 접수를 안내해 주세요.<br>▶ 전입 접수: <em>1544-3131</em> 또는 <em>www.lsyesco.com</em>"</div></div>
+          <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">소유자 연락 시 주의</div><div class="info-box-text">이전 세입자의 개인정보(성명·요금·연체 내역)를 소유자에게 공유하는 것은 <strong>금지</strong>입니다. "전출이 완료되었다"는 사실만 안내합니다.</div></div></div>
+        </div>
+      </div>
+
+      <!-- ACTION 5 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">5</div><div class="action-content"><div class="action-title">개인정보보호법 준수 지침</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>항목</th><th>기준</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">법적 근거</td><td>개인정보보호법 제15조 제1항 제6호</td></tr>
+              <tr><td class="field-name">수집 목적</td><td>가스 안전 관리 · 요금 정산 · 재계약 안내</td></tr>
+              <tr><td class="field-name">최소 수집 원칙</td><td>연락처만 수집 권장 (업무 목적에 필요한 최소한의 정보만)</td></tr>
+              <tr><td class="field-name">즉시 파기</td><td>문자 발송 후 복구 불가능한 삭제</td></tr>
+              <tr><td class="field-name">제3자 공유</td><td>고객 동의 없이 소유자·부동산 등에 정보 제공 <strong>금지</strong></td></tr>
+              <tr><td class="field-name">열람·삭제 요청</td><td>고객 요청 시 즉시 처리</td></tr>
+              <tr><td class="field-name">공급규정 개정</td><td>임차인 고지의무 부과 필요</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="completion-box"><h4>✅ STEP 6 완료 — 전출 전체 프로세스 종료!</h4></div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-step5')">← STEP 5</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-exception')">부록: 예외 대응 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 부록 – 예외 대응 ================ -->
+  <div class="page-section" id="out-exception">
+    <div class="page-header moveout">
+      <div class="step-badge">부록</div>
+      <h2>전출 예외 대응 가이드</h2>
+    </div>
+    <div class="content-body">
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">!</div><div class="action-content"><div class="action-title">상황별 예외 대응표</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>상황</th><th>긴급도</th><th>상담원 대응</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">미납 고객 (전출 시)</td><td>🔴 높음</td><td>① 가정산 동의 필수 + 미납 금액 명시 ② 가상계좌 또는 현장 카드 결제 안내 ③ 미납 동의 기록</td></tr>
+              <tr><td class="field-name">대수입금 발견</td><td>🟡 보통</td><td>① 담당자 즉시 통보 및 안내 ② 정산 시 차감 처리</td></tr>
+              <tr><td class="field-name">부동산 대리 정산 요청</td><td>🔴 높음</td><td>① 위임장+신분증 필요 ② 정산 금액은 본인에게만 안내 ③ 부동산에 금액 공유 금지</td></tr>
+              <tr><td class="field-name">소유자 정보 수집 거부</td><td>🟡 보통</td><td>① 강요 금지 ② ERP [동의 거부] 체크 ③ 빈 집 안전 관리 안내만 진행</td></tr>
+              <tr><td class="field-name">예약 조건 (방문 지연)</td><td>🟡 보통</td><td>① 이사 완료 + 구두 약속 + 위험 납음 확인 ② 예상 방문일+순번 배정</td></tr>
+              <tr><td class="field-name">당일 긴급 전출</td><td>🔴 높음</td><td>① 매니저 일정 확인 → 가능 시간 안내 ② 불가 시 익일 오전 우선 배정 ③ 중간밸브 잠금 방법 안내</td></tr>
+              <tr><td class="field-name">증빙 기록 누락</td><td>🟡 보통</td><td>① 누적/실리메모 필수 ② 사진·서명 재취득</td></tr>
+              <tr><td class="field-name">과납 (초과 납부)</td><td>🟢 낮음</td><td>① 환불 계좌 수집 → ERP [환불 요청] ② 재무팀 연계 3~5일 ③ 환불 완료 시 알림톡</td></tr>
+              <tr><td class="field-name">건물 철거·재건축</td><td>🔴 높음</td><td>① 소유자/시공사 확인 → 일괄 전출 ② 배관 안전 조치 ③ 재건축 후 재공급 안내</td></tr>
+              <tr><td class="field-name">장기 공실 (6개월↑)</td><td>🟡 보통</td><td>① 소유자 정기 안내 (동파 방지) ② 기본요금 면제 확인 ③ 입주자 발생 시 전입 안내</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-step6')">← STEP 6</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-guide')">상황별 실무 지침 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 부록 – 상황별 실무 지침 ================ -->
+  <div class="page-section" id="out-guide">
+    <div class="page-header moveout">
+      <div class="step-badge">부록</div>
+      <h2>상황별 실무 지침 (Agent Guide)</h2>
+      <p class="subtitle">전출 4대 핵심 시나리오별 상세 가이드</p>
+    </div>
+    <div class="content-body">
+
+      <!-- Guide 1: 이사 정산 요청 시 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">1</div><div class="action-content"><div class="action-title">📌 이사 정산 요청 시</div><div class="action-desc">고객이 "이사를 하는데 가스 정산해 주세요"라고 연락한 경우</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 응대 스크립트 (팀원 확인 버전)</div><div class="script-text">"이사요금 정산은 반드시 <em>매니저가 방문</em>하여 계량기 지침을 확인 후 진행할 수 있습니다. 전출 신청 접수해 드릴까요?<br><br>주소지 전출로 가스계량기를 잠글 경우, <em>가스사용이 불가</em>합니다. 이에, 가스 사용 재계약 안내를 위해 <em>소유자 연락처</em>가 필요하여 매니저 방문 시 수집할 예정임을 안내드립니다.<br><br>정보 제공 시에는 반드시 <em>소유자의 동의</em>를 받은 후 전달해 주시기 바랍니다."</div></div>
+          <table class="system-table">
+            <thead><tr><th>순서</th><th>액션</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>①</td><td>본인확인·정보 수집</td><td>STEP 1 참조</td></tr>
+              <tr><td>②</td><td>미납·연체 확인</td><td>STEP 2 참조</td></tr>
+              <tr><td>③</td><td>방문 예약 등록</td><td>이사일 기준</td></tr>
+              <tr><td>④</td><td>부가서비스 해지 안내</td><td>자동이체·알림톡·자가검침</td></tr>
+              <tr><td>⑤</td><td>소유자 연락처 수집 안내 (동의 필수)</td><td>매니저 방문 시 수집 예정 안내</td></tr>
+              <tr><td>⑥</td><td>겨울철 동파 주의</td><td>11~3월</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box danger"><div class="info-box-icon">⛔</div><div class="info-box-content"><div class="info-box-title">절대 금지</div><div class="info-box-text">매니저 방문 없이 전화상으로만 정산 처리 불가. 고객 직접 촬영 지침만으로 정산 → 팀장 승인 필요.</div></div></div>
+        </div>
+      </div>
+
+      <!-- Guide 2: 부동산 이사 정산 요청 시 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">2</div><div class="action-content"><div class="action-title">📌 부동산 이사 정산 요청 시</div><div class="action-desc">부동산 중개인이 "세입자 대신 정산 요청합니다"라고 연락한 경우</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 응대 스크립트 (팀원 확인 버전)</div><div class="script-text">"본인이 맞으십니까? 요금 정산은 <em>해당 주소지의 사용자만</em> 가능하며, 전출 신청 시 <em>매니저 방문</em>을 통해 이사정산이 진행됩니다."</div></div>
+          <div class="script-box outbound"><div class="script-label">📞 이미 전출 나간 경우 (전입 전)</div><div class="script-text">"안건관리규정에 따라 전출 시 <em>안전점검 및 조치</em>를 위해 방문이 필요합니다. 소유자분께 해당 내용 전달하시어 다시 한번 연락주시기 바랍니다."</div></div>
+          <table class="system-table">
+            <thead><tr><th>순서</th><th>액션</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>①</td><td>본인 여부 확인</td><td>사용자 본인만 정산 가능</td></tr>
+              <tr><td>②</td><td>부동산 중개인 자격 확인</td><td>중개사무소명·담당자명</td></tr>
+              <tr><td>③</td><td>위임장·신분증 요청</td><td>없으면 접수 불가</td></tr>
+              <tr><td>④</td><td>위임장 수령 후 접수</td><td>ERP "부동산 대리 — 위임장 확인"</td></tr>
+              <tr><td>⑤</td><td>정산 금액은 본인에게만</td><td>부동산에 금액 공유 금지</td></tr>
+              <tr><td>⑥</td><td>이미 전출 나간 경우</td><td>소유자에게 안내 후 재연락 요청</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box danger"><div class="info-box-icon">⛔</div><div class="info-box-content"><div class="info-box-title">절대 금지</div><div class="info-box-text">위임장 없이 부동산에 고객 정보·요금 공유 금지. 부동산 명의 정산 불가. 소유자 정보 제공 금지.</div></div></div>
+        </div>
+      </div>
+
+      <!-- Guide 3: 전출 신청 시 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">3</div><div class="action-content"><div class="action-title">📌 전출 신청 시 (일반 안내)</div><div class="action-desc">고객이 "전출(가스 해지) 신청합니다"라고 연락한 경우</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 응대 스크립트 (팀원 확인 버전)</div><div class="script-text">"방문 접수해드리겠습니다. 해당일에 담당 매니저가 연락드리고 방문토록 하겠습니다.<br><em>일정이 많을 경우 약속시간보다 지연될 수 있으니 양해부탁드리며</em>, 전출 시점 <em>계량기 지침을 확인할 수 있도록 사진 촬영</em>을 요청 드립니다.<br><br>방문 시 안전관리규정에 따라 안전조치로 <em>계량기를 잠그고</em> 있습니다. <em>겨울철 동파 위험</em>이 있으니 소유자 및 새 전입자분께 안내 부탁드립니다."</div></div>
+          <table class="system-table">
+            <thead><tr><th>항목</th><th>안내 내용</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">방문 필수</td><td>매니저 현장 방문 없이 전출 처리 불가</td></tr>
+              <tr><td class="field-name">소요 시간</td><td>현장 약 15~20분</td></tr>
+              <tr><td class="field-name">일정 지연 가능</td><td>일정이 많을 경우 약속시간보다 지연 가능 안내</td></tr>
+              <tr><td class="field-name">지침 사진 촬영</td><td>전출 시점 계량기 지침 사진 촬영 요청</td></tr>
+              <tr><td class="field-name">안전 조치</td><td>안전관리규정에 따라 계량기 잠금</td></tr>
+              <tr><td class="field-name">동파 주의</td><td>겨울철 동파 위험 → 소유자 및 새 전입자에게 안내</td></tr>
+              <tr><td class="field-name">부가서비스</td><td>자동이체·알림톡·자가검침 전출 시 자동 해지</td></tr>
+              <tr><td class="field-name">정산</td><td>최종 사용량 기준 → 가상계좌 또는 현장 카드 결제</td></tr>
+              <tr><td class="field-name">빌트인</td><td>빌트인 가스기기 여부 사전 확인</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Guide 4: 전출 당일 매니저 방문 전 연락 -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">4</div><div class="action-content"><div class="action-title">📌 전출 당일 매니저 방문 전 연락</div><div class="action-desc">매니저가 전출 당일 고객에게 방문 전 연락할 때</div></div></div>
+        <div class="action-detail">
+          <div class="script-box purple"><div class="script-label">📞 방문 전 전화 (팀원 확인 버전)</div><div class="script-text">"안녕하세요, 고객님. 예스매니저 ○○○입니다. 금일 전출로 <em>[시간]</em>에 방문하여 안전점검 및 사용요금 정산 예정입니다.<br><br>전출 시 가스계량기를 잠글 경우, <em>가스사용이 불가</em>합니다. 이에, 가스 사용 재계약 안내를 위해 <em>소유자 연락처</em>가 필요하여 매니저 방문 시 수집할 예정임을 안내드립니다.<br><br>정보 제공 시에는 반드시 <em>소유자의 동의</em>를 받은 후 전달해 주시기 바랍니다."</div></div>
+          <table class="system-table">
+            <thead><tr><th>순서</th><th>액션</th><th>상세</th></tr></thead>
+            <tbody>
+              <tr><td><strong>①</strong></td><td>사전 전화 (10~15분 전)</td><td>방문 시간·소요 시간, 안전점검 및 정산 예정 안내</td></tr>
+              <tr><td><strong>②</strong></td><td>계량기 잠금 안내</td><td>"전출 시 가스계량기를 잠글 경우, 가스사용이 불가"</td></tr>
+              <tr><td><strong>③</strong></td><td>소유자 연락처 수집 안내</td><td>"가스 사용 재계약 안내를 위해 소유자 연락처 수집 예정"</td></tr>
+              <tr><td><strong>④</strong></td><td>소유자 동의 요청</td><td>"정보 제공 시 반드시 소유자의 동의를 받은 후 전달"</td></tr>
+              <tr><td><strong>⑤</strong></td><td>계량기 지침 사진</td><td>현장 촬영 → ERP 업로드 → 고객 확인</td></tr>
+              <tr><td><strong>⑥</strong></td><td>부재 시 처리</td><td>문자 → 30분 대기 → 3회 재연락 → 안내문 부착 후 철수</td></tr>
+            </tbody>
+          </table>
+          <div class="info-box warning"><div class="info-box-icon">⚠️</div><div class="info-box-content"><div class="info-box-title">겨울철 추가 안내 (11~3월)</div><div class="info-box-text">"가스 차단 후 보일러 사용 불가. 수도 배관 동파 방지를 위해 수도꼭지를 약간 열어 두시거나 부동액 처리를 권장드립니다. 소유자 및 새 전입자분께 동파 위험 안내 부탁드립니다."</div></div></div>
+        </div>
+      </div>
+
+      <!-- Quick Reference -->
+      <div class="action-card">
+        <div class="action-header"><div class="action-number purple">📋</div><div class="action-content"><div class="action-title">Quick Reference — 4대 시나리오 요약</div></div></div>
+        <div class="action-detail">
+          <table class="system-table">
+            <thead><tr><th>시나리오</th><th>핵심 포인트</th><th>절대 금지</th></tr></thead>
+            <tbody>
+              <tr><td class="field-name">이사 정산 요청</td><td>매니저 방문 필수 · 소유자 연락처 수집(동의 필수) · 동파 주의</td><td>전화상으로만 정산 · 동의 없이 소유자 정보 수집</td></tr>
+              <tr><td class="field-name">부동산 대리 정산</td><td>본인 확인 필수 · 위임장+신분증 필수 · 이미 전출 시 소유자 안내</td><td>위임장 없이 정보·금액 공유</td></tr>
+              <tr><td class="field-name">전출 신청 시</td><td>방문 필수 · 지연 가능 안내 · 지침 사진 촬영 요청 · 동파 주의(소유자+전입자)</td><td>방문 없이 전출 처리</td></tr>
+              <tr><td class="field-name">당일 방문 전 연락</td><td>안전점검+정산 예정 · 계량기 잠금 안내 · 소유자 동의 · 부재 대응</td><td>동의 없이 소유자 정보 수집</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-exception')">← 예외 대응</button>
+        <button class="step-nav-btn next purple" onclick="showPage('out-scripts')">스크립트 모음 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================ 전출 부록 – 스크립트 모음 ================ -->
+  <div class="page-section" id="out-scripts">
+    <div class="page-header moveout">
+      <div class="step-badge">부록</div>
+      <h2>전출 스크립트 모음</h2>
+    </div>
+    <div class="content-body">
+      <div class="tab-group">
+        <button class="tab-btn active" onclick="switchScriptTab(this,'out-script-normal')">일반 전출</button>
+        <button class="tab-btn" onclick="switchScriptTab(this,'out-script-arrear')">미납·연체 시</button>
+        <button class="tab-btn" onclick="switchScriptTab(this,'out-script-builtin')">빌트인 가스기기</button>
+        <button class="tab-btn" onclick="switchScriptTab(this,'out-script-owner')">소유자 연락처 수집</button>
+      </div>
+      <div id="out-script-normal" class="script-tab-content">
+        <div class="script-box purple"><h4>📞 [오프닝]</h4><p>"감사합니다, 예스코 도시가스 ○○○입니다. 무엇을 도와드릴까요?"</p></div>
+        <div class="script-box purple"><h4>📞 [본인확인]</h4><p>"전출 접수를 도와드리겠습니다. 고객님 성함과 납부자 번호, 연락처를 말씀해 주세요."</p></div>
+        <div class="script-box purple"><h4>📞 [정보수집]</h4><p>"현재 사용 중이신 주소와 이사 예정일을 말씀해 주세요. 매니저 방문 희망 시간대가 있으신가요?"</p></div>
+        <div class="script-box purple"><h4>📞 [방문 안내]</h4><p>"방문 접수해드리겠습니다. 해당일에 담당 매니저가 연락드리고 방문토록 하겠습니다. <strong>일정이 많을 경우 약속시간보다 지연될 수 있으니 양해부탁드리며</strong>, 전출 시점 <strong>계량기 지침을 확인할 수 있도록 사진 촬영</strong>을 요청 드립니다."</p></div>
+        <div class="script-box purple"><h4>📞 [안전 안내]</h4><p>"방문 시 안전관리규정에 따라 안전조치로 <strong>계량기를 잠그고</strong> 있습니다. <strong>겨울철 동파 위험</strong>이 있으니 소유자 및 새 전입자분께 안내 부탁드립니다."</p></div>
+        <div class="script-box purple"><h4>📞 [부가서비스]</h4><p>"자동이체, 알림톡, 자가검침은 전출 완료 시 자동 해지됩니다."</p></div>
+        <div class="script-box purple"><h4>📞 [클로징]</h4><p>"전출 접수 완료되었습니다. 시간 변경 시 <strong>1544-3131</strong>로 연락 부탁드립니다. 감사합니다!"</p></div>
+      </div>
+      <div id="out-script-arrear" class="script-tab-content" style="display:none;">
+        <div class="script-box outbound"><h4>📞 [미납 안내]</h4><p>"고객님, 미납 요금이 <strong>[금액]원</strong> 확인됩니다. 전출 시 미납+최종 사용 요금 합산 정산됩니다. 가상계좌 또는 현장 카드 결제로 납부 가능합니다."</p></div>
+        <div class="script-box outbound"><h4>📞 [연체 경고 — 3개월↑]</h4><p>"<strong>3개월 이상 연체</strong> 시 공급 중지 및 계약 해지가 진행될 수 있습니다. 전출 전 미납 요금 납부를 강력히 권장드립니다. 분할 납부 상담도 가능합니다."</p></div>
+        <div class="script-box outbound"><h4>📞 [독촉 전화 — D+7]</h4><p>"○○○ 고객님, <strong>[전출일]</strong> 전출 정산 금액 <strong>[금액]원</strong>이 미납 상태입니다. 가상계좌 <strong>[은행명] [계좌번호]</strong>로 <strong>[기한]</strong>까지 입금 부탁드립니다."</p></div>
+      </div>
+      <div id="out-script-builtin" class="script-tab-content" style="display:none;">
+        <div class="script-box purple"><h4>📞 [빌트인 확인]</h4><p>"현재 주소에 빌트인 가스 쿡탑이나 오븐이 설치되어 있나요? 빌트인 기기는 일반적으로 건물에 남기는 경우가 많습니다."</p></div>
+        <div class="script-box purple"><h4>📞 [빌트인 잔류 시]</h4><p>"빌트인 기기를 그대로 두시는 경우, 매니저가 호스 분리 및 밸브 잠금만 진행합니다. 다음 입주자 전입 시 재연결됩니다."</p></div>
+        <div class="script-box purple"><h4>📞 [빌트인 철거 시]</h4><p>"빌트인 기기 철거를 원하시면 별도 작업이 필요하며 추가 비용이 발생할 수 있습니다. 매니저가 현장에서 확인 후 안내드리겠습니다."</p></div>
+      </div>
+      <div id="out-script-owner" class="script-tab-content" style="display:none;">
+        <div class="script-box purple"><h4>📞 [소유자 연락처 수집 — 이사 정산 시]</h4><p>"주소지 전출로 가스계량기를 잠글 경우, 가스사용이 불가합니다. 이에, 가스 사용 재계약 안내를 위해 <strong>소유자 연락처</strong>가 필요하여 매니저 방문 시 수집할 예정임을 안내드립니다. 정보 제공 시에는 반드시 <strong>소유자의 동의</strong>를 받은 후 전달해 주시기 바랍니다."</p></div>
+        <div class="script-box purple"><h4>📞 [소유자 연락처 수집 — 당일 방문 시]</h4><p>"전출 시 가스계량기를 잠글 경우, 가스사용이 불가합니다. 이에, 가스 사용 재계약 안내를 위해 <strong>소유자 연락처</strong>가 필요하여 매니저 방문 시 수집할 예정임을 안내드립니다. 정보 제공 시에는 반드시 <strong>소유자의 동의</strong>를 받은 후 전달해 주시기 바랍니다."</p></div>
+        <div class="script-box purple"><h4>📞 [민원 예방 — 정산 안내 강화]</h4><p>"고객님, 등기 반환을 위해 주택 소유자 연락처만 간단히 확인하고 있습니다. 문자 발송 후 즉시 삭제됩니다. 전출하시는 요청에 따라 먼저 도와드리며, 최종 요금 확인 후 안내드린 방법으로 정산 부탁드립니다. 3일 이내 문자를 안내해 드리겠습니다."</p></div>
+      </div>
+
+      <div class="step-nav">
+        <button class="step-nav-btn prev" onclick="showPage('out-guide')">← 상황별 실무 지침</button>
+        <button class="step-nav-btn next" onclick="switchProcess('in');showPage('in-overview');">전입 매뉴얼로 이동 →</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+
+<!-- ===== FOOTER ===== -->
+<footer class="manual-footer">
+  <strong>예스코 도시가스 전입·전출 통합 실무 매뉴얼 v2.1</strong><br>
+  최종 업데이트: 2026-02 &nbsp;|&nbsp; 고객센터: 1544-3131 &nbsp;|&nbsp;
+  <a href="https://www.lsyesco.com">www.lsyesco.com</a><br>
+  본 매뉴얼은 내부 교육용이며, 외부 배포를 금합니다.<br>
+  &copy; 2026 예스코 도시가스. All rights reserved.
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+/* ========== 프로세스 전환 (전입/전출) ========== */
+function switchProcess(type){
+  document.querySelectorAll('.sidebar-tab').forEach(function(t){
+    t.classList.remove('active-in','active-out');
+  });
+  var tab=document.querySelector('.sidebar-tab[data-process="'+type+'"]');
+  if(tab) tab.classList.add(type==='in'?'active-in':'active-out');
+  document.querySelectorAll('.nav-group').forEach(function(g){g.classList.remove('visible');});
+  var navGroup=document.getElementById('nav-'+type);
+  if(navGroup) navGroup.classList.add('visible');
+}
+
+/* ========== 페이지 전환 ========== */
+function showPage(pageId){
+  document.querySelectorAll('.page-section').forEach(function(s){s.style.display='none';});
+  var target=document.getElementById(pageId);
+  if(target){
+    target.style.display='block';
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.classList.remove('active','active-out');
+  });
+  var activeNav=document.querySelector('.nav-item[data-page="'+pageId+'"]');
+  if(activeNav){
+    if(pageId.startsWith('out-')){
+      activeNav.classList.add('active-out');
+    }else{
+      activeNav.classList.add('active');
+    }
+  }
+  if(pageId.startsWith('in-')){
+    switchProcess('in');
+  }else if(pageId.startsWith('out-')){
+    switchProcess('out');
+  }
+  updateBreadcrumb(pageId);
+}
+
+/* ========== 브레드크럼 ========== */
+function updateBreadcrumb(pageId){
+  var bc=document.getElementById('breadcrumb');
+  if(!bc) return;
+  var isIn=pageId.startsWith('in-');
+  var proc=isIn?'전입 프로세스':'전출 프로세스';
+  var names={
+    'in-overview':'전체 흐름','in-step1':'STEP 1 접수',
+    'in-step2':'STEP 2 상태확인','in-step3':'STEP 3 점검예약',
+    'in-step4':'STEP 4 현장점검','in-step5':'STEP 5 등록·개통',
+    'in-step6':'STEP 6 안내','in-exception':'예외 대응',
+    'in-cost':'비용 안내표','in-scripts':'스크립트 모음',
+    'out-overview':'전체 흐름','out-step1':'STEP 1 전출접수',
+    'out-step2':'STEP 2 상태확인','out-step3':'STEP 3 안전점검',
+    'out-step4':'STEP 4 최종정산','out-step5':'STEP 5 전출처리',
+    'out-step6':'STEP 6 확인안내','out-exception':'예외 대응',
+    'out-guide':'상황별 실무 지침','out-scripts':'스크립트 모음'
+  };
+  var name=names[pageId]||pageId;
+  bc.innerHTML=proc+' &gt; <strong>'+name+'</strong>';
+}
+
+/* ========== 스크립트 탭 전환 ========== */
+function switchScriptTab(btn,tabId){
+  var body=btn.closest('.content-body');
+  if(body){
+    body.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    body.querySelectorAll('.script-tab-content').forEach(function(c){c.style.display='none';});
+  }
+  var target=document.getElementById(tabId);
+  if(target) target.style.display='block';
+}
+
+/* ========== 초기화 ========== */
+document.addEventListener('DOMContentLoaded',function(){
+  switchProcess('in');
+  showPage('in-overview');
+});
+</script>
+</body>
+</html>
